@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.credit.mapper.PosMapper">
+
+    <resultMap type="com.ruoyi.credit.domain.Pos" id="PosResult">
+        <result property="id"    column="id"    />
+        <result property="posName"    column="pos_name"    />
+        <result property="feeLevelOne"    column="fee_level_one"    />
+        <result property="feeLevelTwo"    column="fee_level_two"    />
+        <result property="fixedCost"    column="fixed_cost"    />
+        <result property="applyYear"    column="apply_year"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPosVo">
+        select id, pos_name, fee_level_one, fee_level_two, fixed_cost, apply_year, remark, create_by, create_time, update_by, update_time from t_pos
+    </sql>
+
+    <select id="selectPosList" parameterType="com.ruoyi.credit.domain.Pos" resultMap="PosResult">
+        <include refid="selectPosVo"/>
+        <where>
+            <if test="posName != null  and posName != ''"> and pos_name like concat('%', #{posName}, '%')</if>
+            <if test="feeLevelOne != null "> and fee_level_one = #{feeLevelOne}</if>
+            <if test="feeLevelTwo != null "> and fee_level_two = #{feeLevelTwo}</if>
+            <if test="fixedCost != null "> and fixed_cost = #{fixedCost}</if>
+            <if test="applyYear != null "> and apply_year = #{applyYear}</if>
+        </where>
+    </select>
+
+    <select id="selectPosById" parameterType="Long" resultMap="PosResult">
+        <include refid="selectPosVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertPos" parameterType="com.ruoyi.credit.domain.Pos" useGeneratedKeys="true" keyProperty="id">
+        insert into t_pos
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="posName != null and posName != ''">pos_name,</if>
+            <if test="feeLevelOne != null">fee_level_one,</if>
+            <if test="feeLevelTwo != null">fee_level_two,</if>
+            <if test="fixedCost != null">fixed_cost,</if>
+            <if test="applyYear != null">apply_year,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="posName != null and posName != ''">#{posName},</if>
+            <if test="feeLevelOne != null">#{feeLevelOne},</if>
+            <if test="feeLevelTwo != null">#{feeLevelTwo},</if>
+            <if test="fixedCost != null">#{fixedCost},</if>
+            <if test="applyYear != null">#{applyYear},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePos" parameterType="com.ruoyi.credit.domain.Pos">
+        update t_pos
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="posName != null and posName != ''">pos_name = #{posName},</if>
+            <if test="feeLevelOne != null">fee_level_one = #{feeLevelOne},</if>
+            <if test="feeLevelTwo != null">fee_level_two = #{feeLevelTwo},</if>
+            <if test="fixedCost != null">fixed_cost = #{fixedCost},</if>
+            <if test="applyYear != null">apply_year = #{applyYear},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePosById" parameterType="Long">
+        delete from t_pos where id = #{id}
+    </delete>
+
+    <delete id="deletePosByIds" parameterType="String">
+        delete from t_pos where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
