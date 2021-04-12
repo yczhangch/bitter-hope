@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.credit.mapper.CreditLoanPlanMapper">
+
+    <resultMap type="com.ruoyi.credit.domain.CreditLoanPlan" id="CreditLoanPlanResult">
+        <result property="id" column="id"/>
+        <result property="cardId" column="card_id"/>
+        <result property="loanDate" column="loan_date"/>
+        <result property="loadMoney" column="load_money"/>
+        <result property="posId" column="pos_id"/>
+        <result property="fee" column="fee"/>
+        <result property="isLoaded" column="is_loaded"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="cardNum" column="card_num"/>
+        <result property="cardName" column="card_name"/>
+        <result property="posName" column="pos_name"/>
+    </resultMap>
+
+    <sql id="selectCreditLoanPlanVo">
+        select t.id,
+               card_id,
+               loan_date,
+               load_money,
+               pos_id,
+               fee,
+               is_loaded,
+               t.remark,
+               t.create_by,
+               t.create_time,
+               t.update_by,
+               t.update_time,
+               t1.card_num,
+               t1.card_name,
+               t2.pos_name
+        from t_credit_loan_plan t
+                 left join t_credit_card t1 on t.card_id = t1.id
+                 left join t_pos t2 on t.pos_id = t2.id
+    </sql>
+
+    <sql id="selectCreditLoanPlanWithCardVo">
+        select id,
+               card_id,
+               loan_date,
+               load_money,
+               pos_id,
+               fee,
+               is_loaded,
+               remark,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from t_credit_loan_plan
+    </sql>
+
+    <select id="selectCreditLoanPlanList" parameterType="com.ruoyi.credit.domain.CreditLoanPlan"
+            resultMap="CreditLoanPlanResult">
+        <include refid="selectCreditLoanPlanVo"/>
+        <where>
+            <if test="cardId != null ">and card_id = #{cardId}</if>
+            <if test="loanDate != null ">and loan_date = #{loanDate}</if>
+            <if test="loadMoney != null ">and load_money = #{loadMoney}</if>
+            <if test="posId != null ">and pos_id = #{posId}</if>
+            <if test="fee != null ">and fee = #{fee}</if>
+            <if test="isLoaded != null  and isLoaded != ''">and is_loaded = #{isLoaded}</if>
+        </where>
+    </select>
+
+    <select id="selectCreditLoanPlanById" parameterType="Long" resultMap="CreditLoanPlanResult">
+        <include refid="selectCreditLoanPlanVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCreditLoanPlan" parameterType="com.ruoyi.credit.domain.CreditLoanPlan" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_credit_loan_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cardId != null">card_id,</if>
+            <if test="loanDate != null">loan_date,</if>
+            <if test="loadMoney != null">load_money,</if>
+            <if test="posId != null">pos_id,</if>
+            <if test="fee != null">fee,</if>
+            <if test="isLoaded != null">is_loaded,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cardId != null">#{cardId},</if>
+            <if test="loanDate != null">#{loanDate},</if>
+            <if test="loadMoney != null">#{loadMoney},</if>
+            <if test="posId != null">#{posId},</if>
+            <if test="fee != null">#{fee},</if>
+            <if test="isLoaded != null">#{isLoaded},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCreditLoanPlan" parameterType="com.ruoyi.credit.domain.CreditLoanPlan">
+        update t_credit_loan_plan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="cardId != null">card_id = #{cardId},</if>
+            <if test="loanDate != null">loan_date = #{loanDate},</if>
+            <if test="loadMoney != null">load_money = #{loadMoney},</if>
+            <if test="posId != null">pos_id = #{posId},</if>
+            <if test="fee != null">fee = #{fee},</if>
+            <if test="isLoaded != null">is_loaded = #{isLoaded},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCreditLoanPlanById" parameterType="Long">
+        delete
+        from t_credit_loan_plan
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteCreditLoanPlanByIds" parameterType="String">
+        delete from t_credit_loan_plan where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

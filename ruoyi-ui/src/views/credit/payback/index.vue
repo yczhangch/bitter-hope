@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="信用卡id" prop="cardId">
-        <el-select v-model="queryParams.cardId" placeholder="请选择信用卡id" clearable size="small">
+      <el-form-item label="信用卡" prop="cardId">
+        <el-select v-model="queryParams.cardId" placeholder="请选择信用卡" clearable size="small">
           <el-option
-            v-for="dict in cardIdOptions"
-            :key="dict.dictValue"
-            :label="dict.dictLabel"
-            :value="dict.dictValue"
-          />
+            v-for="card in creditCard"
+            :key="card.id"
+            :label="card.cardName"
+            :value="card.id"
+          ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="年" prop="year">
@@ -122,8 +122,7 @@
           <span>{{ parseTime(scope.row.payBackDay, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="是否还款" align="center" prop="isPayed"
-                        >
+      <el-table-column label="是否还款" align="center" prop="isPayed">
       <!--  :formatter="isPayedFormat"-->
         <template slot-scope="scope">
           <el-switch
@@ -166,13 +165,13 @@
     <!-- 添加或修改信用卡还款日提醒对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="信用卡id" prop="cardId">
-          <el-select v-model="form.cardId" placeholder="请选择信用卡id">
+        <el-form-item label="信用卡" prop="cardId">
+          <el-select v-model="form.cardId" placeholder="请选择信用卡">
             <el-option
-              v-for="dict in cardIdOptions"
-              :key="dict.dictValue"
-              :label="dict.dictLabel"
-              :value="parseInt(dict.dictValue)"
+              v-for="card in creditCard"
+              :key="card.id"
+              :label="card.cardName"
+              :value="card.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -222,6 +221,7 @@
 
 <script>
 import { listPayback, getPayback, delPayback, addPayback, updatePayback, exportPayback } from "@/api/credit/payback";
+import { getCreditCardList } from "@/api/credit/plan"
 
 export default {
   name: "Payback",
@@ -247,8 +247,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
-      // 信用卡id字典
-      cardIdOptions: [],
+      // 信用卡字典
+      creditCard: [],
       // 是否还款字典
       isPayedOptions: [],
       // 查询参数
@@ -267,16 +267,14 @@ export default {
       // 表单校验
       rules: {
         cardId: [
-          { required: true, message: "信用卡id不能为空", trigger: "change" }
+          { required: true, message: "信用卡不能为空", trigger: "change" }
         ],
       }
     };
   },
   created() {
     this.getList();
-    this.getDicts("sys_yes_no").then(response => {
-      this.cardIdOptions = response.data;
-    });
+    this.getCreditCardList();
     this.getDicts("sys_yes_no").then(response => {
       this.isPayedOptions = response.data;
     });
@@ -291,9 +289,8 @@ export default {
         this.loading = false;
       });
     },
-    // 信用卡id字典翻译
-    cardIdFormat(row, column) {
-      return this.selectDictLabel(this.cardIdOptions, row.cardId);
+    getCreditCardList() {
+      getCreditCardList().then(res => this.creditCard = res.data)
     },
     // 是否还款字典翻译
     isPayedFormat(row, column) {

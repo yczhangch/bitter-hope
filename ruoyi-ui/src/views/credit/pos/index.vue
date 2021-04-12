@@ -170,7 +170,7 @@
 </template>
 
 <script>
-import { listPos, getPos, delPos, addPos, updatePos, exportPos } from "@/api/credit/pos";
+import { listPos, getPos, delPos, addPos, updatePos, exportPos,getPosList } from "@/api/credit/pos";
 
 export default {
   name: "Pos",

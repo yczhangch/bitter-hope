@@ -93,4 +93,9 @@ public class PosController extends BaseController {
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(posService.deletePosByIds(ids));
     }
+
+    @GetMapping("/posList")
+    public AjaxResult posList() {
+        return AjaxResult.success(posService.selectPosList(null));
+    }
 }

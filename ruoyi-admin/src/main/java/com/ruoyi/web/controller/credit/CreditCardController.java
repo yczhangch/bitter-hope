@@ -87,4 +87,9 @@ public class CreditCardController extends BaseController {
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(creditCardService.deleteCreditCardByIds(ids));
     }
+
+    @GetMapping("/creditCardList")
+    public AjaxResult getCreditCards(){
+        return AjaxResult.success(creditCardService.selectCreditCardList(null));
+    }
 }

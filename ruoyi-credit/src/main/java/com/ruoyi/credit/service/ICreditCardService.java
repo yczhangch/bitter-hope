@@ -57,4 +57,5 @@ public interface ICreditCardService {
      * @return 结果
      */
      int deleteCreditCardById(Long id);
+
 }
