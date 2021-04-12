@@ -8,7 +8,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 信用卡还款日提醒对象 t_credit_pay_back
+ * 信用卡还款日提醒 t_credit_pay_back
  *
  * @author hope
  * @date 2021-03-12

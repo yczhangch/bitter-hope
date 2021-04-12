@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.math.BigDecimal;
 
 /**
- * 信用卡对象 t_credit_card
+ * 信用卡 t_credit_card
  *
  * @author hope
  * @date 2021-03-12

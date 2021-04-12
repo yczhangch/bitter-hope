@@ -1,10 +1,11 @@
 package com.ruoyi.credit.domain;
 
-import java.math.BigDecimal;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.math.BigDecimal;
 
 /**
  * pos机对象 t_pos
@@ -12,7 +13,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author hope
  * @date 2021-03-16
  */
-public class Pos extends BaseEntity{
+public class Pos extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -57,6 +58,7 @@ public class Pos extends BaseEntity{
     public Long getId() {
         return id;
     }
+
     public void setPosName(String posName) {
         this.posName = posName;
     }
@@ -64,6 +66,7 @@ public class Pos extends BaseEntity{
     public String getPosName() {
         return posName;
     }
+
     public void setFeeLevelOne(BigDecimal feeLevelOne) {
         this.feeLevelOne = feeLevelOne;
     }
@@ -71,6 +74,7 @@ public class Pos extends BaseEntity{
     public BigDecimal getFeeLevelOne() {
         return feeLevelOne;
     }
+
     public void setFeeLevelTwo(BigDecimal feeLevelTwo) {
         this.feeLevelTwo = feeLevelTwo;
     }
@@ -78,6 +82,7 @@ public class Pos extends BaseEntity{
     public BigDecimal getFeeLevelTwo() {
         return feeLevelTwo;
     }
+
     public void setFixedCost(BigDecimal fixedCost) {
         this.fixedCost = fixedCost;
     }
@@ -85,6 +90,7 @@ public class Pos extends BaseEntity{
     public BigDecimal getFixedCost() {
         return fixedCost;
     }
+
     public void setApplyYear(Long applyYear) {
         this.applyYear = applyYear;
     }
@@ -95,18 +101,18 @@ public class Pos extends BaseEntity{
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("posName", getPosName())
-            .append("feeLevelOne", getFeeLevelOne())
-            .append("feeLevelTwo", getFeeLevelTwo())
-            .append("fixedCost", getFixedCost())
-            .append("applyYear", getApplyYear())
-            .append("remark", getRemark())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("id", getId())
+                .append("posName", getPosName())
+                .append("feeLevelOne", getFeeLevelOne())
+                .append("feeLevelTwo", getFeeLevelTwo())
+                .append("fixedCost", getFixedCost())
+                .append("applyYear", getApplyYear())
+                .append("remark", getRemark())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .toString();
     }
 }
