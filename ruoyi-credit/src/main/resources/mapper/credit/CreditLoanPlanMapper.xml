@@ -74,7 +74,7 @@
 
     <select id="selectCreditLoanPlanById" parameterType="Long" resultMap="CreditLoanPlanResult">
         <include refid="selectCreditLoanPlanVo"/>
-        where id = #{id}
+        where t.id = #{id}
     </select>
 
     <insert id="insertCreditLoanPlan" parameterType="com.ruoyi.credit.domain.CreditLoanPlan" useGeneratedKeys="true"
