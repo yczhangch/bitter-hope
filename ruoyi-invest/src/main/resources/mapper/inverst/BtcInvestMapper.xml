@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.invest.mapper.BtcInvestMapper">
+
+    <resultMap type="com.ruoyi.invest.domain.BtcInvest" id="BtcInvestResult">
+        <result property="id" column="id"/>
+        <result property="investTime" column="invest_time"/>
+        <result property="currencyType" column="currency_type"/>
+        <result property="money" column="money"/>
+        <result property="tradeType" column="trade_type"/>
+        <result property="isDone" column="is_done"/>
+        <result property="dealTime" column="deal_time"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectBtcInvestVo">
+        select id,
+               invest_time,
+               currency_type,
+               money,
+               trade_type,
+               is_done,
+               deal_time,
+               remark,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from t_btc_invest
+    </sql>
+
+    <select id="selectBtcInvestList" parameterType="com.ruoyi.invest.domain.BtcInvest" resultMap="BtcInvestResult">
+        <include refid="selectBtcInvestVo"/>
+        <where>
+            <if test="investTime != null ">and invest_time = #{investTime}</if>
+            <if test="currencyType != null  and currencyType != ''">and currency_type = #{currencyType}</if>
+            <if test="money != null ">and money = #{money}</if>
+            <if test="tradeType != null  and tradeType != ''">and trade_type = #{tradeType}</if>
+            <if test="isDone != null  and isDone != ''">and is_done = #{isDone}</if>
+            <if test="dealTime != null ">and deal_time = #{dealTime}</if>
+        </where>
+    </select>
+
+    <select id="selectBtcInvestById" parameterType="Long" resultMap="BtcInvestResult">
+        <include refid="selectBtcInvestVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertBtcInvest" parameterType="com.ruoyi.invest.domain.BtcInvest" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_btc_invest
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="investTime != null">invest_time,</if>
+            <if test="currencyType != null">currency_type,</if>
+            <if test="money != null">money,</if>
+            <if test="tradeType != null">trade_type,</if>
+            <if test="isDone != null">is_done,</if>
+            <if test="dealTime != null">deal_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="investTime != null">#{investTime},</if>
+            <if test="currencyType != null">#{currencyType},</if>
+            <if test="money != null">#{money},</if>
+            <if test="tradeType != null">#{tradeType},</if>
+            <if test="isDone != null">#{isDone},</if>
+            <if test="dealTime != null">#{dealTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBtcInvest" parameterType="com.ruoyi.invest.domain.BtcInvest">
+        update t_btc_invest
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="investTime != null">invest_time = #{investTime},</if>
+            <if test="currencyType != null">currency_type = #{currencyType},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="tradeType != null">trade_type = #{tradeType},</if>
+            <if test="isDone != null">is_done = #{isDone},</if>
+            <if test="dealTime != null">deal_time = #{dealTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBtcInvestById" parameterType="Long">
+        delete from t_btc_invest where id = #{id}
+    </delete>
+
+    <delete id="deleteBtcInvestByIds" parameterType="String">
+        delete from t_btc_invest where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

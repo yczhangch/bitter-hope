@@ -211,6 +211,7 @@
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
         <module>ruoyi-credit</module>
+        <module>ruoyi-invest</module>
     </modules>
     <packaging>pom</packaging>
 

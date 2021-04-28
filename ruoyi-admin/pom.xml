@@ -78,6 +78,12 @@
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-credit</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-invest</artifactId>
+            <version>3.4.0</version>
+        </dependency>
     </dependencies>
 
     <build>
