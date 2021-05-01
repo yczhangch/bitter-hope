@@ -52,7 +52,7 @@ public class BtcInvestController extends BaseController {
     @GetMapping("/export")
     public AjaxResult export(BtcInvest btcInvest) {
         List<BtcInvest> list = btcInvestService.selectBtcInvestList(btcInvest);
-        ExcelUtil<BtcInvest> util = new ExcelUtil<BtcInvest>(BtcInvest.class);
+        ExcelUtil<BtcInvest> util = new ExcelUtil<>(BtcInvest.class);
         return util.exportExcel(list, "invest");
     }
 
