@@ -1,10 +1,13 @@
 package com.ruoyi.credit.domain;
 
-import java.math.BigDecimal;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * pos机交易历史对象 t_pos_trade_history
@@ -12,13 +15,20 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author hope
  * @date 2021-05-09
  */
-public class PosTradeHistory extends BaseEntity{
+public class PosTradeHistory extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
      * 编号
      */
     private Long id;
+
+    /**
+     * 交易日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "交易日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date tradeTime;
 
     /**
      * 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付
@@ -31,6 +41,19 @@ public class PosTradeHistory extends BaseEntity{
      */
     @Excel(name = "pos机")
     private Long posId;
+
+    /**
+     * pos机
+     */
+    private String posName;
+
+    public String getPosName() {
+        return posName;
+    }
+
+    public void setPosName(String posName) {
+        this.posName = posName;
+    }
 
     /**
      * 交易金额
@@ -57,6 +80,15 @@ public class PosTradeHistory extends BaseEntity{
     public Long getId() {
         return id;
     }
+
+    public void setTradeTime(Date tradeTime) {
+        this.tradeTime = tradeTime;
+    }
+
+    public Date getTradeTime() {
+        return tradeTime;
+    }
+
     public void setPosTradeType(String posTradeType) {
         this.posTradeType = posTradeType;
     }
@@ -64,6 +96,7 @@ public class PosTradeHistory extends BaseEntity{
     public String getPosTradeType() {
         return posTradeType;
     }
+
     public void setPosId(Long posId) {
         this.posId = posId;
     }
@@ -71,6 +104,7 @@ public class PosTradeHistory extends BaseEntity{
     public Long getPosId() {
         return posId;
     }
+
     public void setMoney(BigDecimal money) {
         this.money = money;
     }
@@ -78,6 +112,7 @@ public class PosTradeHistory extends BaseEntity{
     public BigDecimal getMoney() {
         return money;
     }
+
     public void setReceived(BigDecimal received) {
         this.received = received;
     }
@@ -85,6 +120,7 @@ public class PosTradeHistory extends BaseEntity{
     public BigDecimal getReceived() {
         return received;
     }
+
     public void setFee(BigDecimal fee) {
         this.fee = fee;
     }
@@ -95,18 +131,19 @@ public class PosTradeHistory extends BaseEntity{
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("posTradeType", getPosTradeType())
-            .append("posId", getPosId())
-            .append("money", getMoney())
-            .append("received", getReceived())
-            .append("fee", getFee())
-            .append("remark", getRemark())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("id", getId())
+                .append("tradeTime", getTradeTime())
+                .append("posTradeType", getPosTradeType())
+                .append("posId", getPosId())
+                .append("money", getMoney())
+                .append("received", getReceived())
+                .append("fee", getFee())
+                .append("remark", getRemark())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .toString();
     }
 }

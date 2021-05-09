@@ -1,6 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="交易日期">
+        <el-date-picker
+          v-model="daterangeTradeTime"
+          size="small"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item label="交易类型" prop="posTradeType">
         <el-select v-model="queryParams.posTradeType" placeholder="请选择" clearable size="small">
           <el-option
@@ -11,9 +23,18 @@
           />
         </el-select>
       </el-form-item>
+<!--      <el-form-item label="pos机" prop="posId">-->
+<!--        <el-select v-model="queryParams.posId" placeholder="请选择pos机" clearable size="small">-->
+<!--          <el-option label="请选择字典生成" value=""/>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
       <el-form-item label="pos机" prop="posId">
-        <el-select v-model="queryParams.posId" placeholder="请选择pos机" clearable size="small">
-          <el-option label="请选择字典生成" value=""/>
+        <el-select v-model="queryParams.posId" placeholder="请选择pos机">
+          <el-option v-for="pos in posList"
+                     :key="pos.id"
+                     :label="pos.posName"
+                     :value="pos.id">
+          </el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="交易金额" prop="money">
@@ -101,13 +122,22 @@
 
     <el-table v-loading="loading" :data="posHistoryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="编号" align="center" prop="id"/>
-      <el-table-column label="交易时间" align="center" prop="createTime"/>
-      <el-table-column label="pos机" align="center" prop="posId"/>
-      <el-table-column label="交易类型" align="center" prop="posTradeType" :formatter="posTradeTypeFormat"/>
+<!--      <el-table-column label="编号" align="center" prop="id"/>-->
+      <el-table-column label="序号" type="index" width="50" align="center">
+        <template slot-scope="scope">
+          <span>{{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="交易日期" align="center" prop="tradeTime" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.tradeTime, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="pos机" align="center" prop="posName"/>
       <el-table-column label="交易金额" align="center" prop="money"/>
       <el-table-column label="到账金额" align="center" prop="received"/>
       <el-table-column label="手续费" align="center" prop="fee"/>
+      <el-table-column label="交易类型" align="center" prop="posTradeType" :formatter="posTradeTypeFormat"/>
       <el-table-column label="备注(失败原因、其他)" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -142,6 +172,14 @@
     <!-- 添加或修改pos机交易历史对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="交易日期" prop="tradeTime">
+          <el-date-picker clearable size="small"
+                          v-model="form.tradeTime"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="选择交易日期">
+          </el-date-picker>
+        </el-form-item>
         <el-form-item label="交易类型" prop="posTradeType">
           <el-select v-model="form.posTradeType" placeholder="请选择">
             <el-option
@@ -153,7 +191,6 @@
           </el-select>
         </el-form-item>
         <el-form-item label="pos机" prop="posId">
-          <!--          <el-input v-model="form.posId" placeholder="请输入pos机编号"/>-->
           <el-select v-model="form.posId" placeholder="请选择pos机">
             <el-option v-for="pos in posList"
                        :key="pos.id"
@@ -217,12 +254,15 @@ export default {
       title: '',
       // 是否显示弹出层
       open: false,
+      // 交易日期时间范围
+      daterangeTradeTime: [],
       // 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付字典
       posTradeTypeOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        tradeTime: null,
         posTradeType: null,
         posId: null,
         money: null,
@@ -246,13 +286,18 @@ export default {
     /** 查询pos机交易历史列表 */
     getList() {
       this.loading = true
+      this.queryParams.params = {};
+      if (null != this.daterangeTradeTime && '' != this.daterangeTradeTime) {
+        this.queryParams.params["beginTradeTime"] = this.daterangeTradeTime[0];
+        this.queryParams.params["endTradeTime"] = this.daterangeTradeTime[1];
+      }
       listPosHistory(this.queryParams).then(response => {
         this.posHistoryList = response.rows
         this.total = response.total
         this.loading = false
       })
     },
-    // 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付字典翻译
+    // 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付
     posTradeTypeFormat(row, column) {
       return this.selectDictLabel(this.posTradeTypeOptions, row.posTradeType)
     },
@@ -265,6 +310,7 @@ export default {
     reset() {
       this.form = {
         id: null,
+        tradeTime: null,
         posTradeType: null,
         posId: null,
         money: null,
@@ -285,6 +331,7 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
+      this.daterangeTradeTime = [];
       this.resetForm('queryForm')
       this.handleQuery()
     },

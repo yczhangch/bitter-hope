@@ -6,8 +6,10 @@
 
     <resultMap type="com.ruoyi.credit.domain.PosTradeHistory" id="PosTradeHistoryResult">
         <result property="id" column="id"/>
+        <result property="tradeTime" column="trade_time"/>
         <result property="posTradeType" column="pos_trade_type"/>
         <result property="posId" column="pos_id"/>
+        <result property="posName" column="pos_name"/>
         <result property="money" column="money"/>
         <result property="received" column="received"/>
         <result property="fee" column="fee"/>
@@ -19,30 +21,37 @@
     </resultMap>
 
     <sql id="selectPosTradeHistoryVo">
-        select id,
-               pos_trade_type,
-               pos_id,
-               money,
-               received,
-               fee,
-               remark,
-               create_by,
-               create_time,
-               update_by,
-               update_time
-        from t_pos_trade_history
+        select t.id,
+               t.trade_time,
+               t.pos_trade_type,
+               t1.pos_name pos_name,
+               t.money,
+               t.received,
+               t.pos_id,
+               t.fee,
+               t.remark,
+               t.create_by,
+               t.create_time,
+               t.update_by,
+               t.update_time
+        from t_pos_trade_history t
+                 left join t_pos t1 on t.pos_id = t1.id
     </sql>
 
     <select id="selectPosTradeHistoryList" parameterType="com.ruoyi.credit.domain.PosTradeHistory"
             resultMap="PosTradeHistoryResult">
         <include refid="selectPosTradeHistoryVo"/>
         <where>
+            <if test="params.beginTradeTime != null and params.beginTradeTime != '' and params.endTradeTime != null and params.endTradeTime != ''">
+                and trade_time between #{params.beginTradeTime} and #{params.endTradeTime}
+            </if>
             <if test="posTradeType != null  and posTradeType != ''">and pos_trade_type = #{posTradeType}</if>
             <if test="posId != null ">and pos_id = #{posId}</if>
             <if test="money != null ">and money = #{money}</if>
             <if test="received != null ">and received = #{received}</if>
             <if test="fee != null ">and fee = #{fee}</if>
         </where>
+        order by t.trade_time desc ,pos_id
     </select>
 
     <select id="selectPosTradeHistoryById" parameterType="Long" resultMap="PosTradeHistoryResult">
@@ -54,6 +63,7 @@
             keyProperty="id">
         insert into t_pos_trade_history
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tradeTime != null">trade_time,</if>
             <if test="posTradeType != null">pos_trade_type,</if>
             <if test="posId != null">pos_id,</if>
             <if test="money != null">money,</if>
@@ -66,6 +76,7 @@
             <if test="updateTime != null">update_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tradeTime != null">#{tradeTime},</if>
             <if test="posTradeType != null">#{posTradeType},</if>
             <if test="posId != null">#{posId},</if>
             <if test="money != null">#{money},</if>
@@ -82,6 +93,7 @@
     <update id="updatePosTradeHistory" parameterType="com.ruoyi.credit.domain.PosTradeHistory">
         update t_pos_trade_history
         <trim prefix="SET" suffixOverrides=",">
+            <if test="tradeTime != null">trade_time = #{tradeTime},</if>
             <if test="posTradeType != null">pos_trade_type = #{posTradeType},</if>
             <if test="posId != null">pos_id = #{posId},</if>
             <if test="money != null">money = #{money},</if>

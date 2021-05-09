@@ -1,12 +1,14 @@
 package com.ruoyi.credit.service.impl;
 
-import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.credit.domain.PosTradeHistory;
+import com.ruoyi.credit.mapper.PosTradeHistoryMapper;
+import com.ruoyi.credit.service.IPosTradeHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.credit.mapper.PosTradeHistoryMapper;
-import com.ruoyi.credit.domain.PosTradeHistory;
-import com.ruoyi.credit.service.IPosTradeHistoryService;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * pos机交易历史Service业务层处理
@@ -49,6 +51,13 @@ public class PosTradeHistoryServiceImpl implements IPosTradeHistoryService {
      */
     @Override
     public int insertPosTradeHistory(PosTradeHistory posTradeHistory) {
+        if (posTradeHistory.getFee() == null) {
+            BigDecimal money = posTradeHistory.getMoney();
+            // 默认设置为0.38，可以自行调整
+            BigDecimal fee = money.multiply(new BigDecimal("0.00038"));
+            posTradeHistory.setFee(fee);
+            posTradeHistory.setReceived(money.subtract(fee));
+        }
         posTradeHistory.setCreateTime(DateUtils.getNowDate());
         return posTradeHistoryMapper.insertPosTradeHistory(posTradeHistory);
     }
