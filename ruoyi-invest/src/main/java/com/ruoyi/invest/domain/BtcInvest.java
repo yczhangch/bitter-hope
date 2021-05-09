@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.core.domain.TreeEntity;
 
 /**
  * 比特币投资对象 t_btc_invest
  *
  * @author hope
- * @date 2021-04-15
+ * @date 2021-05-07
  */
-public class BtcInvest extends BaseEntity{
+public class BtcInvest extends TreeEntity{
     private static final long serialVersionUID = 1L;
 
     /**
@@ -25,15 +25,15 @@ public class BtcInvest extends BaseEntity{
     /**
      * 投资日期
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "投资日期", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+    @Excel(name = "投资日期", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date investTime;
 
     /**
      * 币种
      */
     @Excel(name = "币种")
-    private String currencyType;
+    private String coinType;
 
     /**
      * 投资金额
@@ -52,6 +52,18 @@ public class BtcInvest extends BaseEntity{
      */
     @Excel(name = "是否成交", readConverterExp = "Y=/N")
     private String isDone;
+
+    /**
+     * 成交价格
+     */
+    @Excel(name = "成交价格")
+    private BigDecimal dealPrice;
+
+    /**
+     * 成交数量
+     */
+    @Excel(name = "成交数量")
+    private BigDecimal dealAmount;
 
     /**
      * 成交时间
@@ -74,12 +86,12 @@ public class BtcInvest extends BaseEntity{
     public Date getInvestTime() {
         return investTime;
     }
-    public void setCurrencyType(String currencyType) {
-        this.currencyType = currencyType;
+    public void setCoinType(String coinType) {
+        this.coinType = coinType;
     }
 
-    public String getCurrencyType() {
-        return currencyType;
+    public String getCoinType() {
+        return coinType;
     }
     public void setMoney(BigDecimal money) {
         this.money = money;
@@ -102,6 +114,20 @@ public class BtcInvest extends BaseEntity{
     public String getIsDone() {
         return isDone;
     }
+    public void setDealPrice(BigDecimal dealPrice) {
+        this.dealPrice = dealPrice;
+    }
+
+    public BigDecimal getDealPrice() {
+        return dealPrice;
+    }
+    public void setDealAmount(BigDecimal dealAmount) {
+        this.dealAmount = dealAmount;
+    }
+
+    public BigDecimal getDealAmount() {
+        return dealAmount;
+    }
     public void setDealTime(Date dealTime) {
         this.dealTime = dealTime;
     }
@@ -113,18 +139,21 @@ public class BtcInvest extends BaseEntity{
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("investTime", getInvestTime())
-            .append("currencyType", getCurrencyType())
-            .append("money", getMoney())
-            .append("tradeType", getTradeType())
-            .append("isDone", getIsDone())
-            .append("dealTime", getDealTime())
-            .append("remark", getRemark())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .toString();
+                .append("id", getId())
+                .append("parentId", getParentId())
+                .append("investTime", getInvestTime())
+                .append("coinType", getCoinType())
+                .append("money", getMoney())
+                .append("tradeType", getTradeType())
+                .append("isDone", getIsDone())
+                .append("dealPrice", getDealPrice())
+                .append("dealAmount", getDealAmount())
+                .append("dealTime", getDealTime())
+                .append("remark", getRemark())
+                .append("createBy", getCreateBy())
+                .append("createTime", getCreateTime())
+                .append("updateBy", getUpdateBy())
+                .append("updateTime", getUpdateTime())
+                .toString();
     }
 }

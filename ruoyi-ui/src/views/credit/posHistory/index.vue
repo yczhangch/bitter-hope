@@ -1,46 +1,43 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="pos机名" prop="posName">
+      <el-form-item label="交易类型" prop="posTradeType">
+        <el-select v-model="queryParams.posTradeType" placeholder="请选择" clearable size="small">
+          <el-option
+            v-for="dict in posTradeTypeOptions"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="pos机" prop="posId">
+        <el-select v-model="queryParams.posId" placeholder="请选择pos机" clearable size="small">
+          <el-option label="请选择字典生成" value=""/>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="交易金额" prop="money">
         <el-input
-          v-model="queryParams.posName"
-          placeholder="请输入pos机名"
+          v-model="queryParams.money"
+          placeholder="请输入交易金额"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="小额费率" prop="feeLevelOne">
+      <el-form-item label="到账金额" prop="received">
         <el-input
-          v-model="queryParams.feeLevelOne"
-          placeholder="请输入小额费率"
+          v-model="queryParams.received"
+          placeholder="请输入到账金额"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="刷卡费率" prop="feeLevelTwo">
+      <el-form-item label="手续费" prop="fee">
         <el-input
-          v-model="queryParams.feeLevelTwo"
-          placeholder="请输入刷卡费率"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="固定费用" prop="fixedCost">
-        <el-input
-          v-model="queryParams.fixedCost"
-          placeholder="请输入固定费用"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="申请年份" prop="applyYear">
-        <el-input
-          v-model="queryParams.applyYear"
-          placeholder="请输入申请年份"
+          v-model="queryParams.fee"
+          placeholder="请输入手续费"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -60,7 +57,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['credit:pos:add']"
+          v-hasPermi="['credit:posHistory:add']"
         >新增
         </el-button>
       </el-col>
@@ -72,7 +69,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['credit:pos:edit']"
+          v-hasPermi="['credit:posHistory:edit']"
         >修改
         </el-button>
       </el-col>
@@ -84,7 +81,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['credit:pos:remove']"
+          v-hasPermi="['credit:posHistory:remove']"
         >删除
         </el-button>
       </el-col>
@@ -95,26 +92,23 @@
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['credit:pos:export']"
+          v-hasPermi="['credit:posHistory:export']"
         >导出
         </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="posList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="posHistoryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="编号" align="center" prop="id"/>
-      <el-table-column label="pos机名" align="center" prop="posName"/>
-      <el-table-column label="小额费率" align="center">
-        <template v-if="scope.row.feeLevelOne!=null" slot-scope="scope">{{ scope.row.feeLevelOne }}%</template>
-      </el-table-column>
-      <el-table-column label="刷卡费率" align="center">
-        <template v-if="scope.row.feeLevelTwo!=null" slot-scope="scope">{{ scope.row.feeLevelTwo }}%</template>
-      </el-table-column>
-      <el-table-column label="固定费用" align="center" prop="fixedCost"/>
-      <el-table-column label="申请年份" align="center" prop="applyYear"/>
-      <el-table-column label="备注" align="center" :show-overflow-tooltip="true" width="150" prop="remark"/>
+      <el-table-column label="交易时间" align="center" prop="createTime"/>
+      <el-table-column label="pos机" align="center" prop="posId"/>
+      <el-table-column label="交易类型" align="center" prop="posTradeType" :formatter="posTradeTypeFormat"/>
+      <el-table-column label="交易金额" align="center" prop="money"/>
+      <el-table-column label="到账金额" align="center" prop="received"/>
+      <el-table-column label="手续费" align="center" prop="fee"/>
+      <el-table-column label="备注(失败原因、其他)" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -122,7 +116,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['credit:pos:edit']"
+            v-hasPermi="['credit:posHistory:edit']"
           >修改
           </el-button>
           <el-button
@@ -130,7 +124,7 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['credit:pos:remove']"
+            v-hasPermi="['credit:posHistory:remove']"
           >删除
           </el-button>
         </template>
@@ -145,26 +139,40 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改pos机对话框 -->
+    <!-- 添加或修改pos机交易历史对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="pos机名" prop="posName">
-          <el-input v-model="form.posName" placeholder="请输入pos机名"/>
+        <el-form-item label="交易类型" prop="posTradeType">
+          <el-select v-model="form.posTradeType" placeholder="请选择">
+            <el-option
+              v-for="dict in posTradeTypeOptions"
+              :key="dict.dictValue"
+              :label="dict.dictLabel"
+              :value="dict.dictValue"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="小额费率" prop="feeLevelOne">
-          <el-input v-model="form.feeLevelOne" placeholder="请输入小额费率"/>
+        <el-form-item label="pos机" prop="posId">
+          <!--          <el-input v-model="form.posId" placeholder="请输入pos机编号"/>-->
+          <el-select v-model="form.posId" placeholder="请选择pos机">
+            <el-option v-for="pos in posList"
+                       :key="pos.id"
+                       :label="pos.posName"
+                       :value="pos.id">
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="刷卡费率" prop="feeLevelTwo">
-          <el-input v-model="form.feeLevelTwo" placeholder="请输入刷卡费率"/>
+        <el-form-item label="交易金额" prop="money">
+          <el-input v-model="form.money" placeholder="请输入交易金额"/>
         </el-form-item>
-        <el-form-item label="固定费用" prop="fixedCost">
-          <el-input v-model="form.fixedCost" placeholder="请输入固定费用"/>
+        <el-form-item label="到账金额" prop="received">
+          <el-input v-model="form.received" placeholder="请输入到账金额"/>
         </el-form-item>
-        <el-form-item label="申请年份" prop="applyYear">
-          <el-input v-model="form.applyYear" placeholder="请输入申请年份"/>
+        <el-form-item label="手续费" prop="fee">
+          <el-input v-model="form.fee" placeholder="请输入手续费"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注"/>
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入失败原因、其他注意事项"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -176,10 +184,18 @@
 </template>
 
 <script>
-import { listPos, getPos, delPos, addPos, updatePos, exportPos, getPosList } from '@/api/credit/pos'
+import {
+  listPosHistory,
+  getPosHistory,
+  delPosHistory,
+  addPosHistory,
+  updatePosHistory,
+  exportPosHistory,
+  getPosList
+} from '@/api/credit/posHistory'
 
 export default {
-  name: 'Pos',
+  name: 'PosHistory',
   components: {},
   data() {
     return {
@@ -195,44 +211,50 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // pos机表格数据
-      posList: [],
+      // pos机交易历史表格数据
+      posHistoryList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
       open: false,
+      // 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付字典
+      posTradeTypeOptions: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        posName: null,
-        feeLevelOne: null,
-        feeLevelTwo: null,
-        fixedCost: null,
-        applyYear: null
+        posTradeType: null,
+        posId: null,
+        money: null,
+        received: null,
+        fee: null
       },
       // 表单参数
       form: {},
       // 表单校验
-      rules: {
-        posName: [
-          { required: true, message: 'pos机名不能为空', trigger: 'blur' }
-        ]
-      }
+      rules: {}
     }
   },
   created() {
     this.getList()
+    this.getDicts('t_pos_trade_type').then(response => {
+      this.posTradeTypeOptions = response.data
+    })
+    this.getPosList()
   },
   methods: {
-    /** 查询pos机列表 */
+    /** 查询pos机交易历史列表 */
     getList() {
       this.loading = true
-      listPos(this.queryParams).then(response => {
-        this.posList = response.rows
+      listPosHistory(this.queryParams).then(response => {
+        this.posHistoryList = response.rows
         this.total = response.total
         this.loading = false
       })
+    },
+    // 0-支付宝扫码，1-微信扫码，2-刷卡收款，3-云闪付字典翻译
+    posTradeTypeFormat(row, column) {
+      return this.selectDictLabel(this.posTradeTypeOptions, row.posTradeType)
     },
     // 取消按钮
     cancel() {
@@ -243,11 +265,11 @@ export default {
     reset() {
       this.form = {
         id: null,
-        posName: null,
-        feeLevelOne: null,
-        feeLevelTwo: null,
-        fixedCost: null,
-        applyYear: null,
+        posTradeType: null,
+        posId: null,
+        money: null,
+        received: null,
+        fee: null,
         remark: null,
         createBy: null,
         createTime: null,
@@ -276,16 +298,16 @@ export default {
     handleAdd() {
       this.reset()
       this.open = true
-      this.title = '添加pos机'
+      this.title = '添加pos机交易历史'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
       const id = row.id || this.ids
-      getPos(id).then(response => {
+      getPosHistory(id).then(response => {
         this.form = response.data
         this.open = true
-        this.title = '修改pos机'
+        this.title = '修改pos机交易历史'
       })
     },
     /** 提交按钮 */
@@ -293,13 +315,13 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updatePos(this.form).then(response => {
+            updatePosHistory(this.form).then(response => {
               this.msgSuccess('修改成功')
               this.open = false
               this.getList()
             })
           } else {
-            addPos(this.form).then(response => {
+            addPosHistory(this.form).then(response => {
               this.msgSuccess('新增成功')
               this.open = false
               this.getList()
@@ -311,12 +333,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids
-      this.$confirm('是否确认删除pos机编号为"' + ids + '"的数据项?', '警告', {
+      this.$confirm('是否确认删除pos机交易历史编号为"' + ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return delPos(ids)
+        return delPosHistory(ids)
       }).then(() => {
         this.getList()
         this.msgSuccess('删除成功')
@@ -325,15 +347,19 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams
-      this.$confirm('是否确认导出所有pos机数据项?', '警告', {
+      this.$confirm('是否确认导出所有pos机交易历史数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return exportPos(queryParams)
+        return exportPosHistory(queryParams)
       }).then(response => {
         this.download(response.msg)
       })
+    },
+    /** pos机列表 */
+    getPosList() {
+      getPosList().then(res => this.posList = res.data)
     }
   }
 }

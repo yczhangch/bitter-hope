@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.credit.mapper.PosTradeHistoryMapper">
+
+    <resultMap type="com.ruoyi.credit.domain.PosTradeHistory" id="PosTradeHistoryResult">
+        <result property="id" column="id"/>
+        <result property="posTradeType" column="pos_trade_type"/>
+        <result property="posId" column="pos_id"/>
+        <result property="money" column="money"/>
+        <result property="received" column="received"/>
+        <result property="fee" column="fee"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectPosTradeHistoryVo">
+        select id,
+               pos_trade_type,
+               pos_id,
+               money,
+               received,
+               fee,
+               remark,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from t_pos_trade_history
+    </sql>
+
+    <select id="selectPosTradeHistoryList" parameterType="com.ruoyi.credit.domain.PosTradeHistory"
+            resultMap="PosTradeHistoryResult">
+        <include refid="selectPosTradeHistoryVo"/>
+        <where>
+            <if test="posTradeType != null  and posTradeType != ''">and pos_trade_type = #{posTradeType}</if>
+            <if test="posId != null ">and pos_id = #{posId}</if>
+            <if test="money != null ">and money = #{money}</if>
+            <if test="received != null ">and received = #{received}</if>
+            <if test="fee != null ">and fee = #{fee}</if>
+        </where>
+    </select>
+
+    <select id="selectPosTradeHistoryById" parameterType="Long" resultMap="PosTradeHistoryResult">
+        <include refid="selectPosTradeHistoryVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertPosTradeHistory" parameterType="com.ruoyi.credit.domain.PosTradeHistory" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_pos_trade_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="posTradeType != null">pos_trade_type,</if>
+            <if test="posId != null">pos_id,</if>
+            <if test="money != null">money,</if>
+            <if test="received != null">received,</if>
+            <if test="fee != null">fee,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="posTradeType != null">#{posTradeType},</if>
+            <if test="posId != null">#{posId},</if>
+            <if test="money != null">#{money},</if>
+            <if test="received != null">#{received},</if>
+            <if test="fee != null">#{fee},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePosTradeHistory" parameterType="com.ruoyi.credit.domain.PosTradeHistory">
+        update t_pos_trade_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="posTradeType != null">pos_trade_type = #{posTradeType},</if>
+            <if test="posId != null">pos_id = #{posId},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="received != null">received = #{received},</if>
+            <if test="fee != null">fee = #{fee},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePosTradeHistoryById" parameterType="Long">
+        delete
+        from t_pos_trade_history
+        where id = #{id}
+    </delete>
+
+    <delete id="deletePosTradeHistoryByIds" parameterType="String">
+        delete from t_pos_trade_history where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
