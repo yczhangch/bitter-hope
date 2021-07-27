@@ -19,6 +19,7 @@ import java.util.List;
  */
 @Service
 public class PosTradeHistoryServiceImpl implements IPosTradeHistoryService {
+
     @Resource
     private PosTradeHistoryMapper posTradeHistoryMapper;
 
