@@ -56,6 +56,10 @@
         where id = #{id}
     </select>
 
+    <select id="getTotalCreditLimit" resultType="java.math.BigDecimal">
+        SELECT sum(credit_limit) FROM t_credit_card
+    </select>
+
     <insert id="insertCreditCard" parameterType="com.ruoyi.credit.domain.CreditCard" useGeneratedKeys="true"
             keyProperty="id">
         insert into t_credit_card

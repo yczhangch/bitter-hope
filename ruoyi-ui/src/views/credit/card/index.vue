@@ -45,15 +45,15 @@
           size="small"
           @keyup.enter.native="handleQuery"
         />
-      </el-form-item>
-      <el-form-item label="年费(元)" prop="annualFee">
-        <el-input
-          v-model="queryParams.annualFee"
-          placeholder="请输入年费(元)"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
+<!--      </el-form-item>-->
+<!--      <el-form-item label="年费(元)" prop="annualFee">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.annualFee"-->
+<!--          placeholder="请输入年费(元)"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
       </el-form-item>
       <el-form-item label="发卡银行" prop="bank">
         <el-input
@@ -190,7 +190,7 @@
           <el-input v-model="form.bank" placeholder="请输入发卡银行"/>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" placeholder="请输入备注"/>
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

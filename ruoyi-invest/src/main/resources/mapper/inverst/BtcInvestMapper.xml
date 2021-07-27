@@ -7,6 +7,7 @@
     <resultMap type="com.ruoyi.invest.domain.BtcInvest" id="BtcInvestResult">
         <result property="id" column="id"/>
         <result property="parentId" column="parent_id"/>
+        <result property="investNo" column="invest_no"/>
         <result property="investTime" column="invest_time"/>
         <result property="coinType" column="coin_type"/>
         <result property="money" column="money"/>
@@ -17,6 +18,7 @@
         <result property="dealTime" column="deal_time"/>
         <result property="remark" column="remark"/>
         <result property="createBy" column="create_by"/>
+        <result property="profit" column="profit"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
@@ -25,6 +27,7 @@
     <sql id="selectBtcInvestVo">
         select id,
                parent_id,
+               invest_no,
                invest_time,
                coin_type,
                money,
@@ -35,6 +38,7 @@
                deal_time,
                remark,
                create_by,
+               profit,
                create_time,
                update_by,
                update_time
@@ -45,14 +49,28 @@
         <include refid="selectBtcInvestVo"/>
         <where>
             <if test="parentId != null ">and parent_id = #{parentId}</if>
-            <if test="investTime != null ">and invest_time = #{investTime}</if>
+            <if test="investNo != null  and investNo != ''">and invest_no = #{investNo}</if>
+            <if test="params.beginInvestTime != null and params.beginInvestTime != '' and params.endInvestTime != null and params.endInvestTime != ''">
+                and invest_time between #{params.beginInvestTime} and #{params.endInvestTime}
+            </if>
             <if test="coinType != null  and coinType != ''">and coin_type = #{coinType}</if>
-            <if test="money != null ">and money = #{money}</if>
+            <if test="params.beginMoney != null and params.beginMoney != '' and params.endMoney != null and params.endMoney != ''">
+                and money between #{params.beginMoney} and #{params.endMoney}
+            </if>
             <if test="tradeType != null  and tradeType != ''">and trade_type = #{tradeType}</if>
             <if test="isDone != null  and isDone != ''">and is_done = #{isDone}</if>
-            <if test="dealPrice != null ">and deal_price = #{dealPrice}</if>
-            <if test="dealAmount != null ">and deal_amount = #{dealAmount}</if>
-            <if test="dealTime != null ">and deal_time = #{dealTime}</if>
+            <if test="dealPrice != null and dealPrice != ''">
+                and deal_price >= #{dealPrice}
+            </if>
+            <if test="dealAmount != null and dealAmount != ''">
+                and deal_amount >= #{dealAmount}
+            </if>
+            <if test="params.beginDealTime != null and params.beginDealTime != '' and params.endDealTime != null and params.endDealTime != ''">
+                and deal_time between #{params.beginDealTime} and #{params.endDealTime}
+            </if>
+            <if test="profit != null and profit != ''">
+                and profit >= #{profit}
+            </if>
         </where>
     </select>
 
@@ -66,6 +84,7 @@
         insert into t_btc_invest
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="parentId != null">parent_id,</if>
+            <if test="investNo != null">invest_no,</if>
             <if test="investTime != null">invest_time,</if>
             <if test="coinType != null">coin_type,</if>
             <if test="money != null">money,</if>
@@ -76,12 +95,14 @@
             <if test="dealTime != null">deal_time,</if>
             <if test="remark != null">remark,</if>
             <if test="createBy != null">create_by,</if>
+            <if test="profit != null">profit,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="parentId != null">#{parentId},</if>
+            <if test="investNo != null">#{investNo},</if>
             <if test="investTime != null">#{investTime},</if>
             <if test="coinType != null">#{coinType},</if>
             <if test="money != null">#{money},</if>
@@ -92,6 +113,7 @@
             <if test="dealTime != null">#{dealTime},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createBy != null">#{createBy},</if>
+            <if test="profit != null">#{profit},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
@@ -102,6 +124,7 @@
         update t_btc_invest
         <trim prefix="SET" suffixOverrides=",">
             <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="investNo != null">invest_no = #{investNo},</if>
             <if test="investTime != null">invest_time = #{investTime},</if>
             <if test="coinType != null">coin_type = #{coinType},</if>
             <if test="money != null">money = #{money},</if>
@@ -112,6 +135,7 @@
             <if test="dealTime != null">deal_time = #{dealTime},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="profit != null">profit = #{profit},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>

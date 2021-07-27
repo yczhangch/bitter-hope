@@ -12,7 +12,7 @@ import com.ruoyi.common.core.domain.TreeEntity;
  * 比特币投资对象 t_btc_invest
  *
  * @author hope
- * @date 2021-05-07
+ * @date 2021-07-26
  */
 public class BtcInvest extends TreeEntity{
     private static final long serialVersionUID = 1L;
@@ -23,10 +23,16 @@ public class BtcInvest extends TreeEntity{
     private Long id;
 
     /**
+     * 投资编号（btc买1）
+     */
+    @Excel(name = "投资编号", readConverterExp = "b=tc买1")
+    private String investNo;
+
+    /**
      * 投资日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
-    @Excel(name = "投资日期", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "投资日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date investTime;
 
     /**
@@ -72,12 +78,25 @@ public class BtcInvest extends TreeEntity{
     @Excel(name = "成交时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date dealTime;
 
+    /**
+     * 收益
+     */
+    @Excel(name = "收益")
+    private BigDecimal profit;
+
     public void setId(Long id) {
         this.id = id;
     }
 
     public Long getId() {
         return id;
+    }
+    public void setInvestNo(String investNo) {
+        this.investNo = investNo;
+    }
+
+    public String getInvestNo() {
+        return investNo;
     }
     public void setInvestTime(Date investTime) {
         this.investTime = investTime;
@@ -135,12 +154,20 @@ public class BtcInvest extends TreeEntity{
     public Date getDealTime() {
         return dealTime;
     }
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
                 .append("id", getId())
                 .append("parentId", getParentId())
+                .append("investNo", getInvestNo())
                 .append("investTime", getInvestTime())
                 .append("coinType", getCoinType())
                 .append("money", getMoney())
@@ -151,6 +178,7 @@ public class BtcInvest extends TreeEntity{
                 .append("dealTime", getDealTime())
                 .append("remark", getRemark())
                 .append("createBy", getCreateBy())
+                .append("profit", getProfit())
                 .append("createTime", getCreateTime())
                 .append("updateBy", getUpdateBy())
                 .append("updateTime", getUpdateTime())

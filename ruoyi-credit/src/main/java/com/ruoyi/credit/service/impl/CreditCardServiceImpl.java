@@ -1,5 +1,6 @@
 package com.ruoyi.credit.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.credit.mapper.CreditCardMapper;
 import com.ruoyi.credit.domain.CreditCard;
 import com.ruoyi.credit.service.ICreditCardService;
+
+import javax.annotation.Resource;
 
 /**
  * 信用卡Service业务层处理
@@ -16,7 +19,7 @@ import com.ruoyi.credit.service.ICreditCardService;
  */
 @Service
 public class CreditCardServiceImpl implements ICreditCardService {
-    @Autowired
+    @Resource
     private CreditCardMapper creditCardMapper;
 
     /**
@@ -85,5 +88,15 @@ public class CreditCardServiceImpl implements ICreditCardService {
     @Override
     public int deleteCreditCardById(Long id) {
         return creditCardMapper.deleteCreditCardById(id);
+    }
+
+    /**
+     * 获取信用总额度
+     *
+     * @return 总额度
+     */
+    @Override
+    public BigDecimal getTotalCreditLimit(){
+        return creditCardMapper.getTotalCreditLimit();
     }
 }

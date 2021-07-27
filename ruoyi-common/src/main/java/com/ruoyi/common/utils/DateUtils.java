@@ -3,6 +3,9 @@ package com.ruoyi.common.utils;
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -85,7 +88,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 日期路径 即年/月/日 如20180808
      */
-    public static final String dateTime() {
+    public static String dateTime() {
         Date now = new Date();
         return DateFormatUtils.format(now, "yyyyMMdd");
     }
@@ -131,5 +134,26 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         // 计算差多少秒//输出结果
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
+    }
+
+    /**
+     * 获取上个月1号
+     * @return
+     */
+    public static String getLastMonthOfFirstDay(){
+        LocalDate date = LocalDate.now().minusMonths(1L);
+        return LocalDate.of(date.getYear(),date.getMonth(),1).toString();
+    }
+
+    public static String getNextMonthOfLastDay(){
+        LocalDate date = LocalDate.now().plusMonths(1L);
+        Month month = date.getMonth();
+        //下个月的最后一天
+         return date.with(TemporalAdjusters.lastDayOfMonth()).toString();
+    }
+
+    public static void main(String[] args) {
+        getLastMonthOfFirstDay();
+        System.out.println(getNextMonthOfLastDay());
     }
 }

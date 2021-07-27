@@ -23,11 +23,11 @@
           />
         </el-select>
       </el-form-item>
-<!--      <el-form-item label="pos机" prop="posId">-->
-<!--        <el-select v-model="queryParams.posId" placeholder="请选择pos机" clearable size="small">-->
-<!--          <el-option label="请选择字典生成" value=""/>-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
+      <!--      <el-form-item label="pos机" prop="posId">-->
+      <!--        <el-select v-model="queryParams.posId" placeholder="请选择pos机" clearable size="small">-->
+      <!--          <el-option label="请选择字典生成" value=""/>-->
+      <!--        </el-select>-->
+      <!--      </el-form-item>-->
       <el-form-item label="pos机" prop="posId">
         <el-select v-model="queryParams.posId" placeholder="请选择pos机">
           <el-option v-for="pos in posList"
@@ -122,10 +122,10 @@
 
     <el-table v-loading="loading" :data="posHistoryList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-<!--      <el-table-column label="编号" align="center" prop="id"/>-->
+      <!--      <el-table-column label="编号" align="center" prop="id"/>-->
       <el-table-column label="序号" type="index" width="50" align="center">
         <template slot-scope="scope">
-          <span>{{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}</span>
+          <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
         </template>
       </el-table-column>
       <el-table-column label="交易日期" align="center" prop="tradeTime" width="180">
@@ -134,11 +134,11 @@
         </template>
       </el-table-column>
       <el-table-column label="pos机" align="center" prop="posName"/>
-      <el-table-column label="交易金额" align="center" prop="money"/>
-      <el-table-column label="到账金额" align="center" prop="received"/>
-      <el-table-column label="手续费" align="center" prop="fee"/>
+      <el-table-column label="交易金额（元）" align="center" prop="money"/>
+      <el-table-column label="到账金额（元）" align="center" prop="received"/>
+      <el-table-column label="手续费（元）" align="center" prop="fee"/>
       <el-table-column label="交易类型" align="center" prop="posTradeType" :formatter="posTradeTypeFormat"/>
-      <el-table-column label="备注(失败原因、其他)" align="center" prop="remark"/>
+      <el-table-column label="备注（失败原因、其他）" align="center" prop="remark"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -222,13 +222,13 @@
 
 <script>
 import {
-  listPosHistory,
-  getPosHistory,
-  delPosHistory,
   addPosHistory,
-  updatePosHistory,
+  delPosHistory,
   exportPosHistory,
-  getPosList
+  getPosHistory,
+  getPosList,
+  listPosHistory,
+  updatePosHistory
 } from '@/api/credit/posHistory'
 
 export default {
@@ -286,10 +286,10 @@ export default {
     /** 查询pos机交易历史列表 */
     getList() {
       this.loading = true
-      this.queryParams.params = {};
+      this.queryParams.params = {}
       if (null != this.daterangeTradeTime && '' != this.daterangeTradeTime) {
-        this.queryParams.params["beginTradeTime"] = this.daterangeTradeTime[0];
-        this.queryParams.params["endTradeTime"] = this.daterangeTradeTime[1];
+        this.queryParams.params['beginTradeTime'] = this.daterangeTradeTime[0]
+        this.queryParams.params['endTradeTime'] = this.daterangeTradeTime[1]
       }
       listPosHistory(this.queryParams).then(response => {
         this.posHistoryList = response.rows
@@ -331,7 +331,7 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.daterangeTradeTime = [];
+      this.daterangeTradeTime = []
       this.resetForm('queryForm')
       this.handleQuery()
     },

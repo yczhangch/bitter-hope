@@ -67,3 +67,16 @@ export function getPosList() {
     method: 'get'
   })
 }
+
+// 借款状态修改
+export function changeLoadStatus(isLoaded,id) {
+  const data = {
+    isLoaded,
+    id
+  }
+  return request({
+    url: '/credit/plan/changeLoadStatus',
+    method: 'put',
+    data: data
+  })
+}

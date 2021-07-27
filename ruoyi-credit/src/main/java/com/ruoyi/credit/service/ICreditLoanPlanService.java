@@ -57,4 +57,11 @@ public interface ICreditLoanPlanService {
      * @return 结果
      */
      int deleteCreditLoanPlanById(Long id);
+
+    /**
+     * 信用卡
+     * @param creditLoanPlan
+     * @return
+     */
+    int changeLoadStatus(CreditLoanPlan creditLoanPlan);
 }

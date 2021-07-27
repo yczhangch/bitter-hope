@@ -1,13 +1,11 @@
 package com.ruoyi.credit.domain;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 信用卡借款计划对象 t_credit_loan_plan
@@ -70,6 +68,18 @@ public class CreditLoanPlan extends BaseEntity {
      */
     private String cardName;
 
+    /**
+     * 账单日
+     */
+    private String billDay;
+
+    public String getBillDay() {
+        return billDay;
+    }
+
+    public void setBillDay(String billDay) {
+        this.billDay = billDay;
+    }
 
     public String getPosName() {
         return posName;

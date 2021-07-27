@@ -7,6 +7,7 @@ import com.ruoyi.credit.service.IPosTradeHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  */
 @Service
 public class PosTradeHistoryServiceImpl implements IPosTradeHistoryService {
-    @Autowired
+    @Resource
     private PosTradeHistoryMapper posTradeHistoryMapper;
 
     /**
@@ -54,7 +55,7 @@ public class PosTradeHistoryServiceImpl implements IPosTradeHistoryService {
         if (posTradeHistory.getFee() == null) {
             BigDecimal money = posTradeHistory.getMoney();
             // 默认设置为0.38，可以自行调整
-            BigDecimal fee = money.multiply(new BigDecimal("0.00038"));
+            BigDecimal fee = money.multiply(new BigDecimal("0.0038"));
             posTradeHistory.setFee(fee);
             posTradeHistory.setReceived(money.subtract(fee));
         }

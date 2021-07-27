@@ -79,6 +79,7 @@
             <artifactId>ruoyi-credit</artifactId>
         </dependency>
 
+        <!-- 投资模块-->
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-invest</artifactId>

@@ -20,6 +20,7 @@
         <result property="cardNum" column="card_num"/>
         <result property="cardName" column="card_name"/>
         <result property="posName" column="pos_name"/>
+        <result property="billDay" column="bill_day"/>
     </resultMap>
 
     <sql id="selectCreditLoanPlanVo">
@@ -37,7 +38,8 @@
                t.update_time,
                t1.card_num,
                t1.card_name,
-               t2.pos_name
+               t2.pos_name,
+               t1.bill_day
         from t_credit_loan_plan t
                  left join t_credit_card t1 on t.card_id = t1.id
                  left join t_pos t2 on t.pos_id = t2.id
@@ -59,17 +61,17 @@
         from t_credit_loan_plan
     </sql>
 
-    <select id="selectCreditLoanPlanList" parameterType="com.ruoyi.credit.domain.CreditLoanPlan"
-            resultMap="CreditLoanPlanResult">
+    <select id="selectCreditLoanPlanList" parameterType="com.ruoyi.credit.domain.CreditLoanPlan" resultMap="CreditLoanPlanResult">
         <include refid="selectCreditLoanPlanVo"/>
         <where>
-            <if test="cardId != null ">and card_id = #{cardId}</if>
-            <if test="loanDate != null ">and loan_date = #{loanDate}</if>
-            <if test="loadMoney != null ">and load_money = #{loadMoney}</if>
-            <if test="posId != null ">and pos_id = #{posId}</if>
-            <if test="fee != null ">and fee = #{fee}</if>
-            <if test="isLoaded != null  and isLoaded != ''">and is_loaded = #{isLoaded}</if>
+            <if test="cardId != null "> and card_id = #{cardId}</if>
+            <if test="params.beginLoanDate != null and params.beginLoanDate != '' and params.endLoanDate != null and params.endLoanDate != ''"> and loan_date between #{params.beginLoanDate} and #{params.endLoanDate}</if>
+            <if test="loadMoney != null "> and load_money &gt;= #{loadMoney}</if>
+            <if test="posId != null "> and pos_id = #{posId}</if>
+            <if test="fee != null "> and fee &gt;= #{fee}</if>
+            <if test="isLoaded != null  and isLoaded != ''"> and is_loaded = #{isLoaded}</if>
         </where>
+        order by load_money desc,loan_date desc
     </select>
 
     <select id="selectCreditLoanPlanById" parameterType="Long" resultMap="CreditLoanPlanResult">
@@ -121,7 +123,7 @@
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateTime != null">update_time = NOW()</if>
         </trim>
         where id = #{id}
     </update>

@@ -37,7 +37,7 @@ public class CreditCard extends BaseEntity {
      * 额度(元)
      */
     @Excel(name = "额度(元)")
-    private Long creditLimit;
+    private BigDecimal creditLimit;
 
     /**
      * 账单日
@@ -87,11 +87,11 @@ public class CreditCard extends BaseEntity {
         return cardName;
     }
 
-    public void setCreditLimit(Long creditLimit) {
+    public void setCreditLimit(BigDecimal creditLimit) {
         this.creditLimit = creditLimit;
     }
 
-    public Long getCreditLimit() {
+    public BigDecimal getCreditLimit() {
         return creditLimit;
     }
 

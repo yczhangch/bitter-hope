@@ -93,4 +93,9 @@ public class CreditLoanPlanController extends BaseController {
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(creditLoanPlanService.deleteCreditLoanPlanByIds(ids));
     }
+
+    @PutMapping("/changeLoadStatus")
+    public AjaxResult changeLoadStatus(@RequestBody CreditLoanPlan creditLoanPlan){
+        return toAjax(creditLoanPlanService.changeLoadStatus(creditLoanPlan));
+    }
 }
