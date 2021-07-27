@@ -60,8 +60,8 @@ public interface ICreditLoanPlanService {
 
     /**
      * 信用卡
-     * @param creditLoanPlan
-     * @return
+     * @param creditLoanPlan creditLoanPlan
+     * @return 结果
      */
     int changeLoadStatus(CreditLoanPlan creditLoanPlan);
 }

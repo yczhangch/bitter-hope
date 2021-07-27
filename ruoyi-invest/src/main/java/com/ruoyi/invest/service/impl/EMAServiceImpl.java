@@ -28,7 +28,7 @@ public class EMAServiceImpl {
      * Calculate EMA,
      *
      * @param list :Price list to calculate，the first at head, the last at tail.
-     * @return
+     * @return ema
      */
     public static Double getEXPMA(final List<Double> list, final int number) {
         // 开始计算EMA值，
@@ -54,7 +54,7 @@ public class EMAServiceImpl {
      * @param shortPeriod :the short period value.  30
      * @param longPeriod  :the long period value.  70
      * @param midPeriod   :the mid period value.
-     * @return
+     * @return macd
      */
     public static HashMap<String, Double> getMACD(final List<Double> list, final int shortPeriod, final int longPeriod, int midPeriod) {
         HashMap<String, Double> macdData = new HashMap<>();
