@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.invest.mapper.FundInvestMapper">
+
+    <resultMap type="com.ruoyi.invest.domain.FundInvest" id="FundInvestResult">
+        <result property="id" column="id"/>
+        <result property="investNo" column="invest_no"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="fund" column="fund"/>
+        <result property="investTime" column="invest_time"/>
+        <result property="money" column="money"/>
+        <result property="tradeType" column="trade_type"/>
+        <result property="isDone" column="is_done"/>
+        <result property="dealPrice" column="deal_price"/>
+        <result property="dealAmount" column="deal_amount"/>
+        <result property="dealTime" column="deal_time"/>
+        <result property="profit" column="profit"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectFundInvestVo">
+        select id,
+               invest_no,
+               parent_id,
+               fund,
+               invest_time,
+               money,
+               trade_type,
+               is_done,
+               deal_price,
+               deal_amount,
+               deal_time,
+               profit,
+               remark,
+               create_by,
+               create_time,
+               update_by,
+               update_time
+        from t_fund_invest
+    </sql>
+
+    <select id="selectFundInvestList" parameterType="com.ruoyi.invest.domain.FundInvest" resultMap="FundInvestResult">
+        <include refid="selectFundInvestVo"/>
+        <where>
+            <if test="investNo != null  and investNo != ''">and invest_no = #{investNo}</if>
+            <if test="parentId != null ">and parent_id = #{parentId}</if>
+            <if test="fund != null  and fund != ''">and fund = #{fund}</if>
+            <if test="params.beginInvestTime != null and params.beginInvestTime != '' and params.endInvestTime != null and params.endInvestTime != ''">
+                and invest_time between #{params.beginInvestTime} and #{params.endInvestTime}
+            </if>
+            <if test="money != null ">and money &gt;= #{money}</if>
+            <if test="tradeType != null  and tradeType != ''">and trade_type = #{tradeType}</if>
+            <if test="isDone != null  and isDone != ''">and is_done = #{isDone}</if>
+            <if test="dealPrice != null ">and deal_price = #{dealPrice}</if>
+            <if test="dealAmount != null ">and deal_amount = #{dealAmount}</if>
+            <if test="params.beginDealTime != null and params.beginDealTime != '' and params.endDealTime != null and params.endDealTime != ''">
+                and deal_time between #{params.beginDealTime} and #{params.endDealTime}
+            </if>
+            <if test="profit != null ">and profit &gt;= #{profit}</if>
+        </where>
+    </select>
+
+    <select id="selectFundInvestById" parameterType="Long" resultMap="FundInvestResult">
+        <include refid="selectFundInvestVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertFundInvest" parameterType="com.ruoyi.invest.domain.FundInvest" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into t_fund_invest
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="investNo != null">invest_no,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="fund != null">fund,</if>
+            <if test="investTime != null">invest_time,</if>
+            <if test="money != null">money,</if>
+            <if test="tradeType != null">trade_type,</if>
+            <if test="isDone != null">is_done,</if>
+            <if test="dealPrice != null">deal_price,</if>
+            <if test="dealAmount != null">deal_amount,</if>
+            <if test="dealTime != null">deal_time,</if>
+            <if test="profit != null">profit,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="investNo != null">#{investNo},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="fund != null">#{fund},</if>
+            <if test="investTime != null">#{investTime},</if>
+            <if test="money != null">#{money},</if>
+            <if test="tradeType != null">#{tradeType},</if>
+            <if test="isDone != null">#{isDone},</if>
+            <if test="dealPrice != null">#{dealPrice},</if>
+            <if test="dealAmount != null">#{dealAmount},</if>
+            <if test="dealTime != null">#{dealTime},</if>
+            <if test="profit != null">#{profit},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateFundInvest" parameterType="com.ruoyi.invest.domain.FundInvest">
+        update t_fund_invest
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="investNo != null">invest_no = #{investNo},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="fund != null">fund = #{fund},</if>
+            <if test="investTime != null">invest_time = #{investTime},</if>
+            <if test="money != null">money = #{money},</if>
+            <if test="tradeType != null">trade_type = #{tradeType},</if>
+            <if test="isDone != null">is_done = #{isDone},</if>
+            <if test="dealPrice != null">deal_price = #{dealPrice},</if>
+            <if test="dealAmount != null">deal_amount = #{dealAmount},</if>
+            <if test="dealTime != null">deal_time = #{dealTime},</if>
+            <if test="profit != null">profit = #{profit},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFundInvestById" parameterType="Long">
+        delete
+        from t_fund_invest
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteFundInvestByIds" parameterType="String">
+        delete from t_fund_invest where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
