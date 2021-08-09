@@ -58,4 +58,19 @@ public interface FundInvestMapper {
      * @return 结果
      */
     int deleteFundInvestByIds(Long[] ids);
+
+    /**
+     * 查询投资父节点
+     *
+     * @param fund 基金
+     * @return 父节点
+     */
+    FundInvest queryParentByFund(String fund);
+
+    /**
+     * 获取基金投资序列号
+     *
+     * @return 序列号
+     */
+    Integer getFundInvestSeq();
 }

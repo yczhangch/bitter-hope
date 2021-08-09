@@ -71,6 +71,14 @@
         where id = #{id}
     </select>
 
+    <select id="queryParentByFund" parameterType="string" resultMap="FundInvestResult">
+        <include refid="selectFundInvestVo"/> where fund = #{fund} and is_done ="N" ORDER BY invest_time ASC LIMIT 1
+    </select>
+
+    <select id="getFundInvestSeq" resultType="java.lang.Integer">
+        select seq('fund')
+    </select>
+
     <insert id="insertFundInvest" parameterType="com.ruoyi.invest.domain.FundInvest" useGeneratedKeys="true"
             keyProperty="id">
         insert into t_fund_invest
@@ -147,4 +155,6 @@
             #{id}
         </foreach>
     </delete>
+
+
 </mapper>
