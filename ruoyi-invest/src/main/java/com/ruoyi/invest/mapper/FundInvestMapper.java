@@ -73,4 +73,11 @@ public interface FundInvestMapper {
      * @return 序列号
      */
     Integer getFundInvestSeq();
+
+    /**
+     * 根据parentId 查询卖出
+     * @param parentId parentId
+     * @return 卖出
+     */
+    List<FundInvest> queryChildrenByParentId(Long parentId);
 }

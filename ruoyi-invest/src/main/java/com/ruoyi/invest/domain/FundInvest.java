@@ -85,6 +85,12 @@ public class FundInvest extends TreeEntity {
     @Excel(name = "收益")
     private BigDecimal profit;
 
+    /**
+     * 收益率/预估收益率
+     */
+    @Excel(name = "收益率/预估收益率")
+    private BigDecimal profitRatio;
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -173,6 +179,14 @@ public class FundInvest extends TreeEntity {
         return profit;
     }
 
+    public void setProfitRatio(BigDecimal profitRatio) {
+        this.profitRatio = profitRatio;
+    }
+
+    public BigDecimal getProfitRatio() {
+        return profitRatio;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -188,6 +202,7 @@ public class FundInvest extends TreeEntity {
                 .append("dealAmount", getDealAmount())
                 .append("dealTime", getDealTime())
                 .append("profit", getProfit())
+                .append("profitRatio", getProfitRatio())
                 .append("remark", getRemark())
                 .append("createBy", getCreateBy())
                 .append("createTime", getCreateTime())

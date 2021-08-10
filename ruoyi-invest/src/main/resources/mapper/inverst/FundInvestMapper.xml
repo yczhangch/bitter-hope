@@ -17,6 +17,7 @@
         <result property="dealAmount" column="deal_amount"/>
         <result property="dealTime" column="deal_time"/>
         <result property="profit" column="profit"/>
+        <result property="profitRatio" column="profit_ratio"    />
         <result property="remark" column="remark"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
@@ -37,6 +38,7 @@
                deal_amount,
                deal_time,
                profit,
+               profit_ratio,
                remark,
                create_by,
                create_time,
@@ -48,21 +50,14 @@
     <select id="selectFundInvestList" parameterType="com.ruoyi.invest.domain.FundInvest" resultMap="FundInvestResult">
         <include refid="selectFundInvestVo"/>
         <where>
-            <if test="investNo != null  and investNo != ''">and invest_no = #{investNo}</if>
-            <if test="parentId != null ">and parent_id = #{parentId}</if>
-            <if test="fund != null  and fund != ''">and fund = #{fund}</if>
-            <if test="params.beginInvestTime != null and params.beginInvestTime != '' and params.endInvestTime != null and params.endInvestTime != ''">
-                and invest_time between #{params.beginInvestTime} and #{params.endInvestTime}
-            </if>
-            <if test="money != null ">and money &gt;= #{money}</if>
-            <if test="tradeType != null  and tradeType != ''">and trade_type = #{tradeType}</if>
-            <if test="isDone != null  and isDone != ''">and is_done = #{isDone}</if>
-            <if test="dealPrice != null ">and deal_price = #{dealPrice}</if>
-            <if test="dealAmount != null ">and deal_amount = #{dealAmount}</if>
-            <if test="params.beginDealTime != null and params.beginDealTime != '' and params.endDealTime != null and params.endDealTime != ''">
-                and deal_time between #{params.beginDealTime} and #{params.endDealTime}
-            </if>
-            <if test="profit != null ">and profit &gt;= #{profit}</if>
+            trade_type in('1','2')
+            <if test="investNo != null  and investNo != ''"> and invest_no = #{investNo}</if>
+            <if test="fund != null  and fund != ''"> and fund = #{fund}</if>
+            <if test="params.beginInvestTime != null and params.beginInvestTime != '' and params.endInvestTime != null and params.endInvestTime != ''"> and invest_time between #{params.beginInvestTime} and #{params.endInvestTime}</if>
+            <if test="money != null "> and money &gt;= #{money}</if>
+            <if test="isDone != null  and isDone != ''"> and is_done = #{isDone}</if>
+            <if test="profit != null "> and profit &gt;= #{profit}</if>
+            <if test="profitRatio != null "> and profit_ratio &gt;= #{profitRatio}</if>
         </where>
     </select>
 
@@ -77,6 +72,13 @@
 
     <select id="getFundInvestSeq" resultType="java.lang.Integer">
         select seq('fund')
+    </select>
+
+    <select id="queryChildrenByParentId" resultMap="FundInvestResult">
+        <include refid="selectFundInvestVo"/>
+        <where>
+            parent_id = #{parentId}
+        </where>
     </select>
 
     <insert id="insertFundInvest" parameterType="com.ruoyi.invest.domain.FundInvest" useGeneratedKeys="true"
@@ -94,6 +96,7 @@
             <if test="dealAmount != null">deal_amount,</if>
             <if test="dealTime != null">deal_time,</if>
             <if test="profit != null">profit,</if>
+            <if test="profitRatio != null">profit_ratio,</if>
             <if test="remark != null">remark,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
@@ -112,6 +115,7 @@
             <if test="dealAmount != null">#{dealAmount},</if>
             <if test="dealTime != null">#{dealTime},</if>
             <if test="profit != null">#{profit},</if>
+            <if test="profitRatio != null">#{profitRatio},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -134,6 +138,7 @@
             <if test="dealAmount != null">deal_amount = #{dealAmount},</if>
             <if test="dealTime != null">deal_time = #{dealTime},</if>
             <if test="profit != null">profit = #{profit},</if>
+            <if test="profitRatio != null">profit_ratio = #{profitRatio},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
@@ -155,6 +160,5 @@
             #{id}
         </foreach>
     </delete>
-
 
 </mapper>
