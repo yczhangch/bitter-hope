@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
@@ -154,7 +156,19 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     public static void main(String[] args) {
-        getLastMonthOfFirstDay();
-        System.out.println(getNextMonthOfLastDay());
+//        getLastMonthOfFirstDay();
+//        System.out.println(getNextMonthOfLastDay());
+
+        Date jzrqDate = DateUtils.parseDate("2021-08-09");
+
+        LocalDate now = LocalDate.now();
+        ZonedDateTime zonedDateTime = now.atStartOfDay(ZoneId.systemDefault());
+        Date today = Date.from(zonedDateTime.toInstant());
+        System.out.println(today.getTime()-jzrqDate.getTime());
+        System.out.println(60*60*24);
+
     }
+
+
+
 }
