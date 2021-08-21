@@ -84,7 +84,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['invest:fundInvest:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -96,28 +97,40 @@
       default-expand-all
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
     >
-      <el-table-column label="投资编号" align="center" prop="investNo" />
-<!--      <el-table-column label="父节点" align="center" prop="parentId" />-->
-      <el-table-column label="基金" width="240" align="center" prop="fund" :formatter="fundFormat" />
+      <el-table-column label="投资编号" align="center" prop="investNo"/>
+      <!--      <el-table-column label="父节点" align="center" prop="parentId" />-->
+      <el-table-column label="基金" width="240" align="center" prop="fund" :formatter="fundFormat"/>
       <el-table-column label="投资日期" align="center" prop="investTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.investTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="投资完成" align="center" prop="isDone" :formatter="isDoneFormat" />
-      <el-table-column label="投资金额" align="center" prop="money" />
-      <el-table-column label="收益/预估收益" width="140" align="center" prop="profit" />
-      <el-table-column label="收益率/预估收益率" width="150" align="center" prop="profitRatio" />
-      <el-table-column label="成交份额" align="center" prop="dealAmount" />
-      <el-table-column label="成交价格" align="center" prop="dealPrice" />
-      <el-table-column label="交易类型" align="center" prop="tradeType" :formatter="tradeTypeFormat" />
+      <el-table-column label="投资完成" align="center" prop="isDone" :formatter="isDoneFormat"/>
+      <el-table-column label="投资金额" align="center" prop="money"/>
+      <el-table-column label="收益/预估收益" width="140" align="center" prop="profit">
+        <template scope="scope">
+          <span v-if="scope.row.profit<=0" style="color:#4CC108">{{ scope.row.profit }}</span>
+          <span v-else style="color: #F7220B">{{ scope.row.profit }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="收益率/预估收益率" width="150" align="center" prop="profitRatio">
+        <template slot-scope="scope">
+          <span v-if="scope.row.profit<=0" style="color:#4CC108">{{
+              (scope.row.profitRatio * 100).toFixed(2) + '%'
+            }}</span>
+          <span v-else style="color: #F7220B">{{ (scope.row.profitRatio * 100).toFixed(2) + '%' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="成交份额" align="center" prop="dealAmount"/>
+      <el-table-column label="成交价格" align="center" prop="dealPrice"/>
+      <el-table-column label="交易类型" align="center" prop="tradeType" :formatter="tradeTypeFormat"/>
       <el-table-column label="成交时间" align="center" prop="dealTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.dealTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="备注" align="center" prop="remark" />
+<!--      <el-table-column label="备注" align="center" prop="remark"/>-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -160,7 +173,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="投资金额" prop="money">
-          <el-input v-model="form.money" placeholder="请输入投资金额" />
+          <el-input v-model="form.money" placeholder="请输入投资金额/卖出金额"/>
         </el-form-item>
         <el-form-item label="交易类型" prop="tradeType">
           <el-select v-model="form.tradeType" placeholder="请选择交易类型">
@@ -172,21 +185,21 @@
             ></el-option>
           </el-select>
         </el-form-item>
-<!--        <el-form-item label="是否成交" prop="isDone">-->
-<!--          <el-select v-model="form.isDone" placeholder="请选择是否成交">-->
-<!--            <el-option-->
-<!--              v-for="dict in isDoneOptions"-->
-<!--              :key="dict.dictValue"-->
-<!--              :label="dict.dictLabel"-->
-<!--              :value="dict.dictValue"-->
-<!--            ></el-option>-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="是否成交" prop="isDone">-->
+        <!--          <el-select v-model="form.isDone" placeholder="请选择是否成交">-->
+        <!--            <el-option-->
+        <!--              v-for="dict in isDoneOptions"-->
+        <!--              :key="dict.dictValue"-->
+        <!--              :label="dict.dictLabel"-->
+        <!--              :value="dict.dictValue"-->
+        <!--            ></el-option>-->
+        <!--          </el-select>-->
+        <!--        </el-form-item>-->
         <el-form-item label="成交价格" prop="dealPrice">
-          <el-input v-model="form.dealPrice" placeholder="请输入成交价格" />
+          <el-input v-model="form.dealPrice" placeholder="请输入成交价格"/>
         </el-form-item>
         <el-form-item label="成交数量" prop="dealAmount">
-          <el-input v-model="form.dealAmount" placeholder="请输入成交数量" />
+          <el-input v-model="form.dealAmount" placeholder="请输入成交数量"/>
         </el-form-item>
         <el-form-item label="成交时间" prop="dealTime">
           <el-date-picker clearable size="small"
@@ -196,14 +209,14 @@
                           placeholder="选择成交时间">
           </el-date-picker>
         </el-form-item>
-<!--        <el-form-item label="收益" prop="profit">-->
-<!--          <el-input v-model="form.profit" placeholder="请输入收益/预估收益" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="收益率/预估收益率" prop="profitRatio">-->
-<!--          <el-input v-model="form.profitRatio" placeholder="请输入收益率/预估收益率" />-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="收益" prop="profit">-->
+        <!--          <el-input v-model="form.profit" placeholder="请输入收益/预估收益" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="收益率/预估收益率" prop="profitRatio">-->
+        <!--          <el-input v-model="form.profitRatio" placeholder="请输入收益率/预估收益率" />-->
+        <!--        </el-form-item>-->
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -215,12 +228,12 @@
 </template>
 
 <script>
-import { listFundInvest, getFundInvest, delFundInvest, addFundInvest, updateFundInvest, exportFundInvest } from "@/api/invest/fundInvest";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import { addFundInvest, delFundInvest, getFundInvest, listFundInvest, updateFundInvest } from '@/api/invest/fundInvest'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
-  name: "FundInvest",
+  name: 'FundInvest',
   components: {
     Treeselect
   },
@@ -235,7 +248,7 @@ export default {
       // 基金投资树选项
       fundInvestOptions: [],
       // 弹出层标题
-      title: "",
+      title: '',
       // 是否显示弹出层
       open: false,
       // 基金字典
@@ -254,77 +267,76 @@ export default {
         money: null,
         isDone: null,
         profit: null,
-        profitRatio: null,
+        profitRatio: null
       },
       // 表单参数
       form: {},
       // 表单校验
-      rules: {
-      }
-    };
+      rules: {}
+    }
   },
   created() {
-    this.getList();
-    this.getDicts("fund_type").then(response => {
-      this.fundOptions = response.data;
-    });
-    this.getDicts("fund_trade_type").then(response => {
-      this.tradeTypeOptions = response.data;
-    });
-    this.getDicts("sys_yes_no").then(response => {
-      this.isDoneOptions = response.data;
-    });
+    this.getList()
+    this.getDicts('fund_type').then(response => {
+      this.fundOptions = response.data
+    })
+    this.getDicts('fund_trade_type').then(response => {
+      this.tradeTypeOptions = response.data
+    })
+    this.getDicts('sys_yes_no').then(response => {
+      this.isDoneOptions = response.data
+    })
   },
   methods: {
     /** 查询基金投资列表 */
     getList() {
-      this.loading = true;
-      this.queryParams.params = {};
+      this.loading = true
+      this.queryParams.params = {}
       if (null != this.daterangeInvestTime && '' != this.daterangeInvestTime) {
-        this.queryParams.params["beginInvestTime"] = this.daterangeInvestTime[0];
-        this.queryParams.params["endInvestTime"] = this.daterangeInvestTime[1];
+        this.queryParams.params['beginInvestTime'] = this.daterangeInvestTime[0]
+        this.queryParams.params['endInvestTime'] = this.daterangeInvestTime[1]
       }
       listFundInvest(this.queryParams).then(response => {
-        this.fundInvestList = this.handleTree(response.data, "id", "parentId");
-        this.loading = false;
-      });
+        this.fundInvestList = this.handleTree(response.data, 'id', 'parentId')
+        this.loading = false
+      })
     },
     /** 转换基金投资数据结构 */
     normalizer(node) {
       if (node.children && !node.children.length) {
-        delete node.children;
+        delete node.children
       }
       return {
         id: node.id,
         label: node.investNo,
         children: node.children
-      };
+      }
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
       listFundInvest().then(response => {
-        this.fundInvestOptions = [];
-        const data = { id: 0, investNo: '顶级节点', children: [] };
-        data.children = this.handleTree(response.data, "id", "parentId");
-        this.fundInvestOptions.push(data);
-      });
+        this.fundInvestOptions = []
+        const data = { id: 0, investNo: '顶级节点', children: [] }
+        data.children = this.handleTree(response.data, 'id', 'parentId')
+        this.fundInvestOptions.push(data)
+      })
     },
     // 基金字典翻译
     fundFormat(row, column) {
-      return this.selectDictLabel(this.fundOptions, row.fund);
+      return this.selectDictLabel(this.fundOptions, row.fund)
     },
     // 交易类型字典翻译
     tradeTypeFormat(row, column) {
-      return this.selectDictLabel(this.tradeTypeOptions, row.tradeType);
+      return this.selectDictLabel(this.tradeTypeOptions, row.tradeType)
     },
     // 是否成交字典翻译
     isDoneFormat(row, column) {
-      return this.selectDictLabel(this.isDoneOptions, row.isDone);
+      return this.selectDictLabel(this.isDoneOptions, row.isDone)
     },
     // 取消按钮
     cancel() {
-      this.open = false;
-      this.reset();
+      this.open = false
+      this.reset()
     },
     // 表单重置
     reset() {
@@ -347,72 +359,72 @@ export default {
         createTime: null,
         updateBy: null,
         updateTime: null
-      };
-      this.resetForm("form");
+      }
+      this.resetForm('form')
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.getList();
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.daterangeInvestTime = [];
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.daterangeInvestTime = []
+      this.resetForm('queryForm')
+      this.handleQuery()
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
-      this.getTreeselect();
-      this.open = true;
-      this.title = "添加基金投资";
+      this.reset()
+      this.getTreeselect()
+      this.open = true
+      this.title = '添加基金投资'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
-      this.getTreeselect();
+      this.reset()
+      this.getTreeselect()
       if (row != null) {
-        this.form.parentId = row.id;
+        this.form.parentId = row.id
       }
       getFundInvest(row.id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改基金投资";
-      });
+        this.form = response.data
+        this.open = true
+        this.title = '修改基金投资'
+      })
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
+      this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
             updateFundInvest(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
+              this.msgSuccess('修改成功')
+              this.open = false
+              this.getList()
+            })
           } else {
             addFundInvest(this.form).then(response => {
-              this.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
+              this.msgSuccess('新增成功')
+              this.open = false
+              this.getList()
+            })
           }
         }
-      });
+      })
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$confirm('是否确认删除基金投资编号为"' + row.id + '"的数据项?', "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
+      this.$confirm('是否确认删除基金投资编号为"' + row.id + '"的数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       }).then(function() {
-        return delFundInvest(row.id);
+        return delFundInvest(row.id)
       }).then(() => {
-        this.getList();
-        this.msgSuccess("删除成功");
+        this.getList()
+        this.msgSuccess('删除成功')
       })
     }
   }
-};
+}
 </script>

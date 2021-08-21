@@ -1,17 +1,18 @@
 package com.ruoyi.invest.service.impl;
 
+import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.invest.domain.FundInvest;
 import com.ruoyi.invest.manager.FundInvestManager;
 import com.ruoyi.invest.mapper.FundInvestMapper;
 import com.ruoyi.invest.service.IFundInvestService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,12 +51,9 @@ public class FundInvestServiceImpl implements IFundInvestService {
      */
     @Override
     public List<FundInvest> selectFundInvestList(FundInvest fundInvest) {
-        // 查询前更新投资收益
+        // 查询前更新投资收益:未投资完成
         fundInvestManager.updateFundInvestProfit();
-        // 默认查询未完成的投资
-        if (StringUtils.isBlank(fundInvest.getIsDone())) {
-            fundInvest.setIsDone("N");
-        }
+        // 查询所有投资
         List<FundInvest> fundInvests = fundInvestMapper.selectFundInvestList(fundInvest);
         List<FundInvest> children = new ArrayList<>();
         for (FundInvest invest : fundInvests) {
@@ -107,42 +105,61 @@ public class FundInvestServiceImpl implements IFundInvestService {
     }
 
     /**
-     * @param fundInvest 卖出
+     * @param fundInvestSell 卖出
      */
-    private void setParent(FundInvest fundInvest) {
+    private void setParent(FundInvest fundInvestSell) {
         // 成交数量
-        BigDecimal dealAmount = fundInvest.getDealAmount();
+        BigDecimal dealAmount = fundInvestSell.getDealAmount();
+
         // 根据fund查询parent
-        FundInvest parent = fundInvestMapper.queryParentByFund(fundInvest.getFund());
+        FundInvest parent = fundInvestMapper.queryParentByFund(fundInvestSell.getFund());
+        if (parent == null) {
+            throw new CustomException("请检查录入是否正确！");
+        }
+        Long parentId = parent.getId();
+        fundInvestSell.setParentId(parentId);
+
         // 查询该parent的卖出
-        FundInvest fundInvestQuery = new FundInvest();
-        fundInvestQuery.setParentId(parent.getId());
-        List<FundInvest> fundSellChildren = fundInvestMapper.selectFundInvestList(fundInvestQuery);
+        List<FundInvest> fundSellChildren = fundInvestMapper.selectFundInvestChildren(parentId);
         BigDecimal remain = parent.getDealAmount();
+        BigDecimal hasSellMoney = BigDecimal.ZERO;
         if (CollectionUtils.isNotEmpty(fundSellChildren)) {
             BigDecimal totalSellAmounts = fundSellChildren.stream().map(FundInvest::getDealAmount)
                     .filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            hasSellMoney = fundSellChildren.stream().map(FundInvest::getMoney)
+                    .filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
             remain = parent.getDealAmount().subtract(totalSellAmounts);
         }
         if (remain.compareTo(dealAmount) > 0) {
-            fundInvest.setParentId(parent.getId());
             // 计算收益、收益率
-            fundInvest.setProfit(fundInvestManager.getSellFundProfit(fundInvest,parent));
-            fundInvest.setProfitRatio(fundInvestManager.getSellProfitRatio(fundInvest,parent));
-            fundInvestMapper.insertFundInvest(fundInvest);
+            fundInvestSell.setProfit(fundInvestManager.getSellFundProfit(fundInvestSell, parent));
+            fundInvestSell.setProfitRatio(fundInvestManager.getSellProfitRatio(fundInvestSell, parent));
+            fundInvestMapper.insertFundInvest(fundInvestSell);
         } else {
+            BigDecimal oldDealAmount = fundInvestSell.getDealAmount();
+            BigDecimal oldSellMoney = fundInvestSell.getMoney();
+            fundInvestSell.setDealAmount(remain);
+            // 卖出金额调整
+            fundInvestSell.setMoney(oldSellMoney.multiply(remain).divide(oldDealAmount, 2, RoundingMode.HALF_UP));
+            // 计算收益、收益率
+            fundInvestSell.setProfit(fundInvestManager.getSellFundProfit(fundInvestSell, parent));
+            fundInvestSell.setProfitRatio(fundInvestManager.getSellProfitRatio(fundInvestSell, parent));
+            fundInvestMapper.insertFundInvest(fundInvestSell);
+
             // 更新parent
             parent.setIsDone("Y");
             parent.setUpdateTime(new Date());
+            // 重新计算实际收益和收益率
+            // 卖出金额总和 - 初始投资额
+            parent.setProfit(hasSellMoney.add(fundInvestSell.getMoney()).subtract(parent.getMoney()));
+            parent.setProfitRatio(parent.getProfit().divide(parent.getMoney(), 2, RoundingMode.HALF_UP));
             fundInvestMapper.updateFundInvest(parent);
-            fundInvest.setDealAmount(remain);
-            // 计算收益、收益率
-            fundInvest.setProfit(fundInvestManager.getSellFundProfit(fundInvest,parent));
-            fundInvest.setProfitRatio(fundInvestManager.getSellProfitRatio(fundInvest,parent));
-            fundInvestMapper.insertFundInvest(fundInvest);
+
             // 将该笔卖出拆分为多个
-            fundInvest.setDealAmount(dealAmount.subtract(remain));
-            setParent(fundInvest);
+            fundInvestSell.setDealAmount(dealAmount.subtract(remain));
+            fundInvestSell.setMoney(oldSellMoney.multiply(fundInvestSell.getDealAmount()).divide(oldDealAmount, 2, RoundingMode.HALF_UP));
+            setParent(fundInvestSell);
         }
     }
 

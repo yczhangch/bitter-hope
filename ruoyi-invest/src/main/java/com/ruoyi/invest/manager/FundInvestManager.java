@@ -2,6 +2,7 @@ package com.ruoyi.invest.manager;
 
 import com.alibaba.fastjson.JSON;
 import com.ruoyi.common.utils.http.HttpUtils;
+import com.ruoyi.invest.constant.InvestConstant;
 import com.ruoyi.invest.domain.FundInvest;
 import com.ruoyi.invest.mapper.FundInvestMapper;
 import com.ruoyi.invest.task.RealTimeFundInfo;
@@ -21,15 +22,15 @@ public class FundInvestManager {
     @Resource
     private FundInvestMapper fundInvestMapper;
 
-    // 求卖出收益 = （卖出价格-买入价格）*卖出数量*（1-0.005）
+    // 卖出收益 = 卖出金额 - 买入金额/总份额*卖出份额
     public BigDecimal getSellFundProfit(FundInvest sell, FundInvest buy) {
-        return (sell.getDealPrice().subtract(buy.getDealPrice())).multiply(sell.getDealAmount())
-                .multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005")));
+        return sell.getMoney().subtract(buy.getMoney().multiply(sell.getDealAmount()).divide(buy.getDealAmount(), 2, RoundingMode.HALF_UP));
     }
 
-    // 求卖出收益率 = （卖出价格-买入价格）/买入价格 - 0.005
+    // 求卖出收益率 = 卖出收益/(买入金额/总份额*卖出份额)
     public BigDecimal getSellProfitRatio(FundInvest sell, FundInvest buy) {
-        return (sell.getDealPrice().subtract(buy.getDealPrice())).divide(buy.getDealPrice(), 2, RoundingMode.DOWN).subtract(new BigDecimal("0.005"));
+        final BigDecimal purchaseCost = buy.getMoney().multiply(sell.getDealAmount()).divide(buy.getDealAmount(), 2, RoundingMode.HALF_UP);
+        return sell.getMoney().subtract(purchaseCost).divide(purchaseCost, 2, BigDecimal.ROUND_HALF_UP);
     }
 
     // 预估收益 = （预估价格 - 买入价格）* 数量*（1-0.005）
@@ -57,7 +58,7 @@ public class FundInvestManager {
     public void updateFundInvestProfit() {
         // 扫描所有未完成投资
         FundInvest fundInvest = new FundInvest();
-        fundInvest.setIsDone("N");
+        fundInvest.setIsDone(InvestConstant.NOT_NONE);
         List<FundInvest> fundInvests = fundInvestMapper.selectFundInvestList(fundInvest);
         for (FundInvest invest : fundInvests) {
             // 获取基金最新价格
@@ -67,22 +68,31 @@ public class FundInvestManager {
             }
             List<FundInvest> child = fundInvestMapper.queryChildrenByParentId(invest.getId());
             if (CollectionUtils.isEmpty(child)) {
-                invest.setProfit((gsz.subtract(invest.getDealPrice())).multiply(invest.getDealAmount())
-                        .multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))));
-                invest.setProfitRatio((gsz.subtract(invest.getDealPrice())).divide(invest.getDealPrice(), 2, RoundingMode.HALF_UP).subtract(new BigDecimal("0.005")));
+                // 估算收益 = 估算值* 数量*（1-0.005） -投资金额
+                // invest.setProfit((gsz.subtract(invest.getDealPrice())).multiply(invest.getDealAmount())
+                //         .multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).setScale(2, RoundingMode.HALF_UP));
+                // TODO: 2021/8/21   根据时间计算费率
+                invest.setProfit(gsz.multiply(invest.getDealAmount()).multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).subtract(invest.getMoney()));
+                invest.setProfitRatio(invest.getProfit().divide(invest.getMoney(),2,RoundingMode.HALF_UP));
+                // invest.setProfitRatio((gsz.subtract(invest.getDealPrice())).divide(invest.getDealPrice(), 2, RoundingMode.HALF_UP).subtract(new BigDecimal("0.005")));
             } else {
                 // 已卖出金额
                 BigDecimal sellMoney = child.stream().map(FundInvest::getMoney).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
                 // 已卖出份额
                 BigDecimal sellAmount = child.stream().map(FundInvest::getDealAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
                 // 剩余份额
-                invest.setDealAmount(invest.getDealAmount().subtract(sellAmount));
-                // 预估收益 = 已实现收益 + 未实现预估收益
-                BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney.negate()).subtract(invest.getMoney());
+                // invest.setDealAmount(invest.getDealAmount().subtract(sellAmount));
+
+                BigDecimal remaining = invest.getDealAmount().subtract(sellAmount);
+                // 预估收益 =  剩余份额*估算值 + 已卖出金额 - 初始投资金额
+                // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney.negate()).subtract(invest.getMoney());
+
+                // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney).subtract(sellAmount.multiply(invest.getDealPrice()));
+                BigDecimal profit = remaining.multiply(gsz).add(sellMoney).subtract(invest.getMoney()).setScale(2, RoundingMode.HALF_UP);
                 invest.setProfit(profit);
-                invest.setProfitRatio(profit.divide(fundInvest.getMoney(), 2, RoundingMode.HALF_UP));
-                fundInvestMapper.updateFundInvest(fundInvest);
+                invest.setProfitRatio(profit.divide(invest.getMoney(), 2, RoundingMode.HALF_UP));
             }
+            fundInvestMapper.updateFundInvest(invest);
         }
     }
 

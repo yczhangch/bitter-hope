@@ -52,6 +52,7 @@
         <where>
             trade_type in('1','2')
             <if test="investNo != null  and investNo != ''"> and invest_no = #{investNo}</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
             <if test="fund != null  and fund != ''"> and fund = #{fund}</if>
             <if test="params.beginInvestTime != null and params.beginInvestTime != '' and params.endInvestTime != null and params.endInvestTime != ''"> and invest_time between #{params.beginInvestTime} and #{params.endInvestTime}</if>
             <if test="money != null "> and money &gt;= #{money}</if>
@@ -78,6 +79,13 @@
         <include refid="selectFundInvestVo"/>
         <where>
             parent_id = #{parentId}
+        </where>
+    </select>
+
+    <select id="selectFundInvestChildren" parameterType="long" resultMap="FundInvestResult">
+        <include refid="selectFundInvestVo"/>
+        <where>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
         </where>
     </select>
 

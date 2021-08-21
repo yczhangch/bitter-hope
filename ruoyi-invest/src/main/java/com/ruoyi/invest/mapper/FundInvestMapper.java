@@ -80,4 +80,12 @@ public interface FundInvestMapper {
      * @return 卖出
      */
     List<FundInvest> queryChildrenByParentId(Long parentId);
+
+    /**
+     * 查询该比基金卖出情况
+     *
+     * @param parentId parentId
+     * @return 基金投资卖出情况
+     */
+    List<FundInvest> selectFundInvestChildren(Long parentId);
 }
