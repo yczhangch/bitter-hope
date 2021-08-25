@@ -61,15 +61,15 @@ public class FundInvest extends TreeEntity {
     private String isDone;
 
     /**
-     * 成交价格
+     * 成交净值
      */
-    @Excel(name = "成交价格")
+    @Excel(name = "成交净值")
     private BigDecimal dealPrice;
 
     /**
-     * 成交数量
+     * 确认份额
      */
-    @Excel(name = "成交数量")
+    @Excel(name = "确认份额")
     private BigDecimal dealAmount;
 
     /**

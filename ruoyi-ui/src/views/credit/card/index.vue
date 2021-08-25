@@ -125,8 +125,8 @@
       <!--      <el-table-column label="逻辑主键" align="center" prop="id" />-->
       <el-table-column label="信用卡名" align="center" prop="cardName"/>
       <el-table-column label="卡号" align="center" prop="cardNum"/>
-      <el-table-column label="额度(元)" align="center" prop="creditLimit"/>
-      <el-table-column label="账单日" align="center">
+      <el-table-column label="额度(元)" sortable align="center" prop="creditLimit"/>
+      <el-table-column label="账单日"  align="center">
         <template v-if="scope.row.billDay!=null" slot-scope="scope">每月{{ scope.row.billDay}}日</template>
       </el-table-column>
       <el-table-column label="还款日" align="center">

@@ -23,9 +23,11 @@ public interface IFundInvestService {
      * 查询基金投资列表
      *
      * @param fundInvest 基金投资
+     * @param pageNum
+     * @param pageSize
      * @return 基金投资集合
      */
-    List<FundInvest> selectFundInvestList(FundInvest fundInvest);
+    List<FundInvest> selectFundInvestList(FundInvest fundInvest, Integer pageNum, Integer pageSize);
 
     /**
      * 新增基金投资

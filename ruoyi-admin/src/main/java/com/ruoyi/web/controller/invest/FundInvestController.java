@@ -1,6 +1,10 @@
 package com.ruoyi.web.controller.invest;
 
 import java.util.List;
+
+import com.ruoyi.common.core.page.PageDomain;
+import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.core.page.TableSupport;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +40,12 @@ public class FundInvestController extends BaseController {
      */
    // @PreAuthorize("@ss.hasPermi('invest:fundInvest:list')")
     @GetMapping("/list")
-    public AjaxResult list(FundInvest fundInvest) {
-        List<FundInvest> list = fundInvestService.selectFundInvestList(fundInvest);
-        return AjaxResult.success(list);
+    public TableDataInfo list(FundInvest fundInvest) {
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        List<FundInvest> list = fundInvestService.selectFundInvestList(fundInvest,pageNum,pageSize);
+        return getDataTable(list);
     }
 
     /**
@@ -48,8 +55,8 @@ public class FundInvestController extends BaseController {
     @Log(title = "基金投资", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(FundInvest fundInvest) {
-        List<FundInvest> list = fundInvestService.selectFundInvestList(fundInvest);
-        ExcelUtil<FundInvest> util = new ExcelUtil<FundInvest>(FundInvest.class);
+        List<FundInvest> list = fundInvestService.selectFundInvestList(fundInvest, null, null);
+        ExcelUtil<FundInvest> util = new ExcelUtil<>(FundInvest.class);
         return util.exportExcel(list, "fundInvest");
     }
 
@@ -75,7 +82,7 @@ public class FundInvestController extends BaseController {
     /**
      * 修改基金投资
      */
-    @PreAuthorize("@ss.hasPermi('invest:fundInvest:edit')")
+    // @PreAuthorize("@ss.hasPermi('invest:fundInvest:edit')")
     @Log(title = "基金投资", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody FundInvest fundInvest) {

@@ -1,7 +1,9 @@
 package com.ruoyi.invest.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.exception.CustomException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.invest.constant.InvestConstant;
 import com.ruoyi.invest.domain.FundInvest;
 import com.ruoyi.invest.manager.FundInvestManager;
 import com.ruoyi.invest.mapper.FundInvestMapper;
@@ -13,10 +15,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static com.ruoyi.invest.constant.InvestConstant.NOT_NONE;
 
 /**
  * 基金投资Service业务层处理
@@ -46,32 +47,55 @@ public class FundInvestServiceImpl implements IFundInvestService {
     /**
      * 查询基金投资列表
      *
-     * @param fundInvest 基金投资
+     * @param fundInvest 基金投资查询条件
+     * @param pageNum    页码
+     * @param pageSize   每页数
      * @return 基金投资
      */
     @Override
-    public List<FundInvest> selectFundInvestList(FundInvest fundInvest) {
+    public List<FundInvest> selectFundInvestList(FundInvest fundInvest, Integer pageNum, Integer pageSize) {
         // 查询前更新投资收益:未投资完成
-        fundInvestManager.updateFundInvestProfit();
-        // 查询所有投资
+        PageHelper.startPage(pageNum, pageSize);
+        // fundInvestManager.updateFundInvestProfit(fundInvest);
         List<FundInvest> fundInvests = fundInvestMapper.selectFundInvestList(fundInvest);
-        List<FundInvest> children = new ArrayList<>();
+        List<FundInvest> childrenAll = new ArrayList<>();      
+        List<FundInvest> updatedInvests = new ArrayList<>();
         for (FundInvest invest : fundInvests) {
-            List<FundInvest> child = fundInvestMapper.queryChildrenByParentId(invest.getId());
-            if (CollectionUtils.isNotEmpty(child)) {
-                children.addAll(child);
+            // 获取基金最新价格
+            final BigDecimal gsz = fundInvestManager.getRealTimePrice(invest.getFund().split(InvestConstant.FUND_NAME_CODE_SPLITTER)[1]);
+            if (gsz == null) {
+                continue;
             }
-        }
-        fundInvests.addAll(children);
-        for (FundInvest next : fundInvests) {
-            // 卖出不显示基金名，投资日期,id
-            if (Objects.equals(next.getTradeType(), "0")) {
-                next.setFund(null);
-                next.setMoney(null);
-                next.setInvestTime(null);
+            List<FundInvest> children = fundInvestMapper.queryChildrenByParentId(invest.getId());
+            if (CollectionUtils.isEmpty(children)) {
+                // 估算收益 = 估算值* 数量*（1-0.005） -投资金额
+                // invest.setProfit((gsz.subtract(invest.getDealPrice())).multiply(invest.getDealAmount())
+                //         .multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).setScale(2, RoundingMode.HALF_UP));
+                // TODO: 2021/8/21   根据时间计算费率
+                invest.setProfit(gsz.multiply(invest.getDealAmount()).multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).subtract(invest.getMoney()).setScale(InvestConstant.MONEY_SCALE, RoundingMode.HALF_UP));
+                invest.setProfitRatio(invest.getProfit().divide(invest.getMoney(), InvestConstant.RATIO_SCALE, RoundingMode.HALF_UP));
+            } else {
+                childrenAll.addAll(children);
+                // 已卖出金额 = 卖出 + 分红
+                BigDecimal sellMoney = children.stream().map(FundInvest::getMoney).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                // 已卖出份额
+                BigDecimal sellAmount = children.stream().map(FundInvest::getDealAmount).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                // 剩余份额
+                // invest.setDealAmount(invest.getDealAmount().subtract(sellAmount));
+                BigDecimal remaining = invest.getDealAmount().subtract(sellAmount);
+                // 预估收益 =  剩余份额*估算值 + 已卖出金额  - 初始投资金额
+                // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney.negate()).subtract(invest.getMoney());
+
+                // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney).subtract(sellAmount.multiply(invest.getDealPrice()));
+                BigDecimal profit = remaining.multiply(gsz).add(sellMoney).subtract(invest.getMoney()).setScale(InvestConstant.MONEY_SCALE, RoundingMode.HALF_UP);
+                invest.setProfit(profit);
+                invest.setProfitRatio(profit.divide(invest.getMoney(), InvestConstant.RATIO_SCALE, RoundingMode.HALF_UP));
             }
+            updatedInvests.add(invest);
+            fundInvestMapper.updateFundInvest(invest);
         }
-        return fundInvests;
+        updatedInvests.addAll(childrenAll);
+        return updatedInvests;
     }
 
     /**
@@ -82,22 +106,26 @@ public class FundInvestServiceImpl implements IFundInvestService {
      */
     @Override
     public int insertFundInvest(FundInvest fundInvest) {
+        BigDecimal money = fundInvest.getMoney();
+        if (money == null) {
+            throw new CustomException("投资金额 / 卖出金额不能为空");
+        }
         fundInvest.setCreateTime(DateUtils.getNowDate());
         // 卖出不计投资时间,投资完成
-        if (Objects.equals("0", fundInvest.getTradeType())) {
+        if (Objects.equals(InvestConstant.FundTradeType.Sell.getTradeType(), fundInvest.getTradeType())) {
             fundInvest.setInvestTime(null);
             fundInvest.setIsDone(null);
-            BigDecimal money = fundInvest.getMoney();
-            if (money == null) {
-                // -1000
-                fundInvest.setMoney(fundInvest.getDealAmount().multiply(fundInvest.getDealPrice().negate()));
-            }
+
             // 设置parentId
             setParent(fundInvest);
             return 1;
+        } else if (Objects.equals(InvestConstant.FundTradeType.Bonus.getTradeType(), fundInvest.getTradeType())) {
+            // 分红，父节点设置为投资未完成的第一笔
+            fundInvest.setIsDone(null);
+            fundInvest.setParentId(queryBonusParent(fundInvest.getFund()));
         } else {
             // 买入默认投资未完成
-            fundInvest.setIsDone("N");
+            fundInvest.setIsDone(NOT_NONE);
             fundInvest.setParentId(NumberUtils.LONG_ZERO);
             fundInvest.setInvestNo(String.valueOf(fundInvestMapper.getFundInvestSeq()));
         }
@@ -105,10 +133,24 @@ public class FundInvestServiceImpl implements IFundInvestService {
     }
 
     /**
+     * 查询分红的父级
+     *
+     * @param fund 基金
+     * @return 父级
+     */
+    private Long queryBonusParent(String fund) {
+        FundInvest parent = fundInvestMapper.queryParentByFund(fund);
+        if (parent != null) {
+            return parent.getId();
+        }
+        return null;
+    }
+
+    /**
      * @param fundInvestSell 卖出
      */
     private void setParent(FundInvest fundInvestSell) {
-        // 成交数量
+        // 确认份额
         BigDecimal dealAmount = fundInvestSell.getDealAmount();
 
         // 根据fund查询parent

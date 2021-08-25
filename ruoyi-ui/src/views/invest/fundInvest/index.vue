@@ -99,18 +99,33 @@
     >
       <el-table-column label="投资编号" align="center" prop="investNo"/>
       <!--      <el-table-column label="父节点" align="center" prop="parentId" />-->
-      <el-table-column label="基金" width="240" align="center" prop="fund" :formatter="fundFormat"/>
+      <el-table-column label="基金" width="250" align="center" prop="fund" :formatter="fundFormat">
+        <template slot-scope="scope">
+          <span v-show="scope.row.parentId === 0">
+            {{ scope.row.fund }}
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="投资日期" align="center" prop="investTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.investTime, '{y}-{m}-{d}') }}</span>
+          <span>
+            {{ parseTime(scope.row.investTime, '{y}-{m}-{d}') }}
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="投资完成" align="center" prop="isDone" :formatter="isDoneFormat"/>
-      <el-table-column label="投资金额" align="center" prop="money"/>
+      <el-table-column label="投资金额" align="center" prop="money">
+        <template slot-scope="scope">
+          <span v-if="scope.row.parentId !== 0">
+             -{{ scope.row.money }}
+          </span>
+          <span v-else >{{ scope.row.money }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="收益/预估收益" width="140" align="center" prop="profit">
         <template scope="scope">
           <span v-if="scope.row.profit<=0" style="color:#4CC108">{{ scope.row.profit }}</span>
-          <span v-else style="color: #F7220B">{{ scope.row.profit }}</span>
+          <span v-else style="color: #f7220b">{{ scope.row.profit }}</span>
         </template>
       </el-table-column>
       <el-table-column label="收益率/预估收益率" width="150" align="center" prop="profitRatio">
@@ -122,7 +137,7 @@
         </template>
       </el-table-column>
       <el-table-column label="成交份额" align="center" prop="dealAmount"/>
-      <el-table-column label="成交价格" align="center" prop="dealPrice"/>
+      <el-table-column label="成交净值" align="center" prop="dealPrice"/>
       <el-table-column label="交易类型" align="center" prop="tradeType" :formatter="tradeTypeFormat"/>
       <el-table-column label="成交时间" align="center" prop="dealTime" width="180">
         <template slot-scope="scope">
@@ -151,6 +166,14 @@
       </el-table-column>
     </el-table>
 
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="queryParams.pageNum"
+      :limit.sync="queryParams.pageSize"
+      @pagination="getList"
+    />
+
     <!-- 添加或修改基金投资对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -173,7 +196,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="投资金额" prop="money">
-          <el-input v-model="form.money" placeholder="请输入投资金额/卖出金额"/>
+          <el-input v-model="form.money" placeholder="请输入投资金额 / 卖出金额"/>
         </el-form-item>
         <el-form-item label="交易类型" prop="tradeType">
           <el-select v-model="form.tradeType" placeholder="请选择交易类型">
@@ -195,11 +218,11 @@
         <!--            ></el-option>-->
         <!--          </el-select>-->
         <!--        </el-form-item>-->
-        <el-form-item label="成交价格" prop="dealPrice">
-          <el-input v-model="form.dealPrice" placeholder="请输入成交价格"/>
+        <el-form-item label="成交净值" prop="dealPrice">
+          <el-input v-model="form.dealPrice" placeholder="请输入成交净值"/>
         </el-form-item>
-        <el-form-item label="成交数量" prop="dealAmount">
-          <el-input v-model="form.dealAmount" placeholder="请输入成交数量"/>
+        <el-form-item label="确认份额" prop="dealAmount">
+          <el-input v-model="form.dealAmount" placeholder="请输入确认份额"/>
         </el-form-item>
         <el-form-item label="成交时间" prop="dealTime">
           <el-date-picker clearable size="small"
@@ -243,6 +266,8 @@ export default {
       loading: true,
       // 显示搜索条件
       showSearch: true,
+      // 总条数
+      total: 0,
       // 基金投资表格数据
       fundInvestList: [],
       // 基金投资树选项
@@ -261,6 +286,8 @@ export default {
       isDoneOptions: [],
       // 查询参数
       queryParams: {
+        pageNum: 1,
+        pageSize: 10,
         investNo: null,
         fund: null,
         investTime: null,
@@ -297,7 +324,8 @@ export default {
         this.queryParams.params['endInvestTime'] = this.daterangeInvestTime[1]
       }
       listFundInvest(this.queryParams).then(response => {
-        this.fundInvestList = this.handleTree(response.data, 'id', 'parentId')
+        this.total = response.total
+        this.fundInvestList = this.handleTree(response.rows, 'id', 'parentId')
         this.loading = false
       })
     },
@@ -313,14 +341,15 @@ export default {
       }
     },
     /** 查询部门下拉树结构 */
-    getTreeselect() {
-      listFundInvest().then(response => {
-        this.fundInvestOptions = []
-        const data = { id: 0, investNo: '顶级节点', children: [] }
-        data.children = this.handleTree(response.data, 'id', 'parentId')
-        this.fundInvestOptions.push(data)
-      })
-    },
+    // getTreeselect() {
+    //   listFundInvest().then(response => {
+    //     this.total = response.total
+    //     this.fundInvestOptions = []
+    //     const data = { id: 0, investNo: '顶级节点', children: [] }
+    //     data.children = this.handleTree(response.rows, 'id', 'parentId')
+    //     this.fundInvestOptions.push(data)
+    //   })
+    // },
     // 基金字典翻译
     fundFormat(row, column) {
       return this.selectDictLabel(this.fundOptions, row.fund)
@@ -375,14 +404,14 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      this.getTreeselect()
+      // this.getTreeselect()
       this.open = true
       this.title = '添加基金投资'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      this.getTreeselect()
+      // this.getTreeselect()
       if (row != null) {
         this.form.parentId = row.id
       }

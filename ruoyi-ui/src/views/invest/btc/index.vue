@@ -69,19 +69,19 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="成交价格" prop="dealPrice">
+      <el-form-item label="成交净值" prop="dealPrice">
         <el-input
           v-model="queryParams.dealPrice"
-          placeholder="请输入成交价格"
+          placeholder="请输入成交净值"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="成交数量" prop="dealAmount">
+      <el-form-item label="确认份额" prop="dealAmount">
         <el-input
           v-model="queryParams.dealAmount"
-          placeholder="请输入成交数量"
+          placeholder="请输入确认份额"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -147,8 +147,8 @@
       <el-table-column label="投资金额" align="center" prop="money"/>
       <el-table-column label="交易类型" align="center" prop="tradeType" :formatter="tradeTypeFormat"/>
       <el-table-column label="是否成交" align="center" prop="isDone" :formatter="isDoneFormat"/>
-      <el-table-column label="成交价格" align="center" prop="dealPrice"/>
-      <el-table-column label="成交数量" align="center" prop="dealAmount"/>
+      <el-table-column label="成交净值" align="center" prop="dealPrice"/>
+      <el-table-column label="确认份额" align="center" prop="dealAmount"/>
       <el-table-column label="成交时间" align="center" prop="dealTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.dealTime, '{y}-{m}-{d}') }}</span>
@@ -221,11 +221,11 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="成交价格" prop="dealPrice">
-          <el-input v-model="form.dealPrice" placeholder="请输入成交价格"/>
+        <el-form-item label="成交净值" prop="dealPrice">
+          <el-input v-model="form.dealPrice" placeholder="请输入成交净值"/>
         </el-form-item>
-        <el-form-item label="成交数量" prop="dealAmount">
-          <el-input v-model="form.dealAmount" placeholder="请输入成交数量"/>
+        <el-form-item label="确认份额" prop="dealAmount">
+          <el-input v-model="form.dealAmount" placeholder="请输入确认份额"/>
         </el-form-item>
         <el-form-item label="成交时间" prop="dealTime">
           <el-date-picker clearable size="small"

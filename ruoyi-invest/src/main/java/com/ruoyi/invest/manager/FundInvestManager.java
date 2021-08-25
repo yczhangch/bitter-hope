@@ -55,42 +55,37 @@ public class FundInvestManager {
     /**
      * 更新投资收益
      */
-    public void updateFundInvestProfit() {
-        // 扫描所有未完成投资
-        FundInvest fundInvest = new FundInvest();
-        fundInvest.setIsDone(InvestConstant.NOT_NONE);
+    public void updateFundInvestProfit(FundInvest fundInvest) {
         List<FundInvest> fundInvests = fundInvestMapper.selectFundInvestList(fundInvest);
         for (FundInvest invest : fundInvests) {
             // 获取基金最新价格
-            final BigDecimal gsz = getRealTimePrice(invest.getFund().split("-")[1]);
+            final BigDecimal gsz = getRealTimePrice(invest.getFund().split(InvestConstant.FUND_NAME_CODE_SPLITTER)[1]);
             if (gsz == null) {
                 continue;
             }
-            List<FundInvest> child = fundInvestMapper.queryChildrenByParentId(invest.getId());
-            if (CollectionUtils.isEmpty(child)) {
+            List<FundInvest> children = fundInvestMapper.queryChildrenByParentId(invest.getId());
+            if (CollectionUtils.isEmpty(children)) {
                 // 估算收益 = 估算值* 数量*（1-0.005） -投资金额
                 // invest.setProfit((gsz.subtract(invest.getDealPrice())).multiply(invest.getDealAmount())
                 //         .multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).setScale(2, RoundingMode.HALF_UP));
                 // TODO: 2021/8/21   根据时间计算费率
-                invest.setProfit(gsz.multiply(invest.getDealAmount()).multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).subtract(invest.getMoney()));
-                invest.setProfitRatio(invest.getProfit().divide(invest.getMoney(),2,RoundingMode.HALF_UP));
-                // invest.setProfitRatio((gsz.subtract(invest.getDealPrice())).divide(invest.getDealPrice(), 2, RoundingMode.HALF_UP).subtract(new BigDecimal("0.005")));
+                invest.setProfit(gsz.multiply(invest.getDealAmount()).multiply(BigDecimal.ONE.subtract(new BigDecimal("0.005"))).subtract(invest.getMoney()).setScale(InvestConstant.MONEY_SCALE, RoundingMode.HALF_UP));
+                invest.setProfitRatio(invest.getProfit().divide(invest.getMoney(), InvestConstant.RATIO_SCALE, RoundingMode.HALF_UP));
             } else {
-                // 已卖出金额
-                BigDecimal sellMoney = child.stream().map(FundInvest::getMoney).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                // 已卖出金额 = 卖出 + 分红
+                BigDecimal sellMoney = children.stream().map(FundInvest::getMoney).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
                 // 已卖出份额
-                BigDecimal sellAmount = child.stream().map(FundInvest::getDealAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+                BigDecimal sellAmount = children.stream().map(FundInvest::getDealAmount).filter(Objects::nonNull).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
                 // 剩余份额
                 // invest.setDealAmount(invest.getDealAmount().subtract(sellAmount));
-
                 BigDecimal remaining = invest.getDealAmount().subtract(sellAmount);
-                // 预估收益 =  剩余份额*估算值 + 已卖出金额 - 初始投资金额
+                // 预估收益 =  剩余份额*估算值 + 已卖出金额  - 初始投资金额
                 // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney.negate()).subtract(invest.getMoney());
 
                 // BigDecimal profit = getRealTimeFundProfit(invest).add(sellMoney).subtract(sellAmount.multiply(invest.getDealPrice()));
-                BigDecimal profit = remaining.multiply(gsz).add(sellMoney).subtract(invest.getMoney()).setScale(2, RoundingMode.HALF_UP);
+                BigDecimal profit = remaining.multiply(gsz).add(sellMoney).subtract(invest.getMoney()).setScale(InvestConstant.MONEY_SCALE, RoundingMode.HALF_UP);
                 invest.setProfit(profit);
-                invest.setProfitRatio(profit.divide(invest.getMoney(), 2, RoundingMode.HALF_UP));
+                invest.setProfitRatio(profit.divide(invest.getMoney(), InvestConstant.RATIO_SCALE, RoundingMode.HALF_UP));
             }
             fundInvestMapper.updateFundInvest(invest);
         }
@@ -100,7 +95,7 @@ public class FundInvestManager {
         String url = "http://fundgz.1234567.com.cn/js/%s.js";
         String param = "rt=" + new Date().getTime();
         String realTimeFundInfo = HttpUtils.sendGet(String.format(url, fundCode), param);
-        if (StringUtils.isEmpty(realTimeFundInfo)) {
+        if (InvestConstant.EMPTY_FUND_INFO.equals(realTimeFundInfo)) {
             return null;
         }
         String fundInfoJsonStr = realTimeFundInfo.substring(realTimeFundInfo.indexOf("{"), realTimeFundInfo.indexOf(");"));
